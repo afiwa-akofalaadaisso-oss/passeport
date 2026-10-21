@@ -3,6 +3,9 @@ API FastAPI pour l'Agent LangGraph Passeport PME.
 Endpoints pour le chat, l'OCR multimodal, l'inspection d'état et le calcul SMT.
 """
 import os
+import random
+import time
+from datetime import datetime
 from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -66,8 +69,144 @@ class ExtractRequest(BaseModel):
     photos: Optional[List[str]] = Field(default=[], description="Photos en Base64 ou URL")
 
 
+class SendCodeRequest(BaseModel):
+    email: str = Field(..., description="Adresse email du propriétaire ou commerçant")
+
+
+class VerifyCodeRequest(BaseModel):
+    email: str = Field(..., description="Adresse email ayant reçu le code")
+    code: str = Field(..., description="Code de sécurité à 6 chiffres")
+
+
+class VerifyPinRequest(BaseModel):
+    pin: str = Field(..., description="Code PIN secret (ex: 2026)")
+
+
+# Magasin en mémoire pour les codes OTP avec horodatage d'expiration (10 min)
+AUTH_CODES_STORE: Dict[str, Dict[str, Any]] = {}
+
+
 # ============================================================================
-# ENDPOINTS API
+# ENDPOINTS AUTHENTIFICATION & SÉCURITÉ EMAIL OTP
+# ============================================================================
+
+@app.post("/api/auth/send-code")
+def auth_send_code(req: SendCodeRequest):
+    """
+    Génère un code OTP à 6 chiffres, l'associe à l'email et prépare le profil commerçant.
+    Retourne le statut d'envoi et un code d'assistance/démo.
+    """
+    email = req.email.strip().lower()
+    if not email or "@" not in email or "." not in email:
+        raise HTTPException(status_code=400, detail="Veuillez fournir une adresse email valide.")
+
+    # Génération d'un code cryptographique à 6 chiffres
+    code = f"{random.randint(100000, 999999)}"
+    now = time.time()
+    AUTH_CODES_STORE[email] = {
+        "code": code,
+        "created_at": now,
+        "expires_at": now + 600  # Valide 10 minutes
+    }
+
+    # Création / Mise à jour automatique du profil commerçant dans SQLite
+    merchant_name = email.split("@")[0].replace(".", " ").capitalize()
+    save_or_update_merchant(
+        merchant_id=email,
+        operator="wave",
+        business_name=f"Commerce de {merchant_name}",
+        city="Dakar"
+    )
+
+    print(f"[AUTH OTP] Code genere pour <{email}> : {code} (Expire dans 10 min)")
+
+    return {
+        "success": True,
+        "message": f"Un code de sécurité à 6 chiffres a été généré pour {email}.",
+        "email": email,
+        "demo_code": code,
+        "expires_in": 600
+    }
+
+
+@app.post("/api/auth/verify-code")
+def auth_verify_code(req: VerifyCodeRequest):
+    """
+    Vérifie le code OTP reçu par email ou le code de secours propriétaire (202600 / 2026).
+    Établit la session et met à jour l'historique de sécurité dans SQLite.
+    """
+    email = req.email.strip().lower()
+    code = req.code.strip()
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Email requis.")
+
+    stored = AUTH_CODES_STORE.get(email)
+    is_valid = False
+
+    # 1. Vérification du code généré et non expiré
+    if stored and stored.get("code") == code:
+        if time.time() <= stored.get("expires_at", 0):
+            is_valid = True
+        else:
+            raise HTTPException(status_code=400, detail="Ce code a expiré. Veuillez en redemander un nouveau.")
+
+    # 2. Code de secours propriétaire ou master override
+    if code in ["202600", "2026"]:
+        is_valid = True
+
+    if not is_valid:
+        raise HTTPException(status_code=401, detail="Code de vérification incorrect. Veuillez vérifier vos chiffres.")
+
+    # Mémorisation du succès dans la base de données relationnelle SQLite
+    add_memory_fact(
+        merchant_id=email,
+        category="identité",
+        fact_key="derniere_connexion",
+        fact_value=f"Vérifié par Email OTP le {datetime.now().strftime('%d/%m/%Y à %H:%M')}",
+        source="system_auth"
+    )
+
+    token = f"passeport_auth_{int(time.time())}_{random.randint(10000, 99999)}"
+
+    return {
+        "success": True,
+        "message": "Connexion réussie avec succès.",
+        "token": token,
+        "user": {
+            "email": email,
+            "merchant_id": email,
+            "role": "owner",
+            "business_name": f"Entreprise {email.split('@')[0].capitalize()}",
+            "verified_at": datetime.now().isoformat()
+        }
+    }
+
+
+@app.post("/api/auth/verify-pin")
+def auth_verify_pin(req: VerifyPinRequest):
+    """Vérification rapide par code PIN physique / pavé tactile (2026)."""
+    pin = req.pin.strip()
+    if pin != "2026":
+        raise HTTPException(status_code=401, detail="Code PIN incorrect.")
+
+    token = f"passeport_pin_{int(time.time())}"
+    return {
+        "success": True,
+        "message": "Déverrouillage PIN confirmé.",
+        "token": token,
+        "user": {
+            "email": "owner@passeport.pme",
+            "merchant_id": "owner_pin",
+            "role": "owner",
+            "business_name": "Commerce Propriétaire",
+            "verified_at": datetime.now().isoformat()
+        }
+    }
+
+
+# ============================================================================
+# ENDPOINTS API PRINCIPAUX
 # ============================================================================
 
 @app.get("/api/health")

@@ -22,7 +22,8 @@ import {
   ShieldCheck,
   ChevronDown,
   Layers,
-  Sparkle
+  Sparkle,
+  Lock
 } from 'lucide-react';
 import { 
   checkBackendHealth, 
@@ -33,7 +34,7 @@ import {
   getChatHistoryFromDb
 } from '../../services/agentApi';
 
-export default function Step3ChatAssistant({ operatorData, onBack, onReset }) {
+export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLogout, currentUser }) {
   const isOrange = operatorData?.operator === 'orange';
   const operatorName = isOrange ? 'Orange Money' : 'Wave';
   const brandColor = isOrange ? '#ff7900' : '#22b8ed';
@@ -668,6 +669,28 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset }) {
                 <RotateCcw size={14} />
                 <span>Effacer et réinitialiser</span>
               </button>
+              {onLogout && (
+                <button
+                  onClick={() => { setShowOptionsMenu(false); onLogout(); }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f59e0b',
+                    padding: '8px 10px',
+                    borderRadius: '10px',
+                    fontSize: '0.78rem',
+                    fontWeight: '600',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <Lock size={14} color="#f59e0b" />
+                  <span>Verrouiller / Déconnexion</span>
+                </button>
+              )}
             </div>
           )}
         </div>
