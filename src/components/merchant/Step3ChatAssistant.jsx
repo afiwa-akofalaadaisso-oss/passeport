@@ -23,7 +23,11 @@ import {
   ChevronDown,
   Layers,
   Sparkle,
-  Lock
+  Lock,
+  Copy,
+  Check,
+  Target,
+  Compass
 } from 'lucide-react';
 import { 
   checkBackendHealth, 
@@ -90,8 +94,113 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     bilanData: null
   });
 
+  const [copiedId, setCopiedId] = useState(null);
+  const [inputFocused, setInputFocused] = useState(false);
+
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  const handleCopyText = (text, id) => {
+    if (!text) return;
+    navigator.clipboard?.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleRetryLastAction = () => {
+    if (pipelineStep === 1) runStep1WaveExtraction();
+    else if (pipelineStep === 2) runStep2CarnetExtraction();
+    else if (pipelineStep === 3) runStep3LegalExtraction();
+    else if (pipelineStep === 4) runStep4BilanGeneration();
+  };
+
+  const renderFormattedAiContent = (text) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%' }}>
+        {lines.map((line, idx) => {
+          const trimmed = line.trim();
+          if (!trimmed) return <div key={idx} style={{ height: '4px' }} />;
+
+          // Détection d'un item numéroté (ex: 1. ou 1) ou 1 - ou ❶)
+          const numMatch = trimmed.match(/^([0-9]+|[❶❷❸❹❺❻❼❽❾])[\.\)\-\s]\s*(.*)$/);
+          if (numMatch) {
+            const rawNum = numMatch[1];
+            const num = ({ '❶':'1','❷':'2','❸':'3','❹':'4','❺':'5','❻':'6','❼':'7','❽':'8','❾':'9' })[rawNum] || rawNum;
+            const content = numMatch[2];
+            return (
+              <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', margin: '4px 0' }}>
+                <span style={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#232328',
+                  color: '#ffffff',
+                  fontSize: '0.72rem',
+                  fontWeight: '700',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  marginTop: '2px',
+                  border: '1px solid rgba(255, 255, 255, 0.16)'
+                }}>
+                  {num}
+                </span>
+                <span style={{ color: '#d1d5db', fontSize: '0.88rem', lineHeight: '1.5' }}>
+                  {content.split('**').map((part, i) => (
+                    i % 2 === 1 ? <strong key={i} style={{ color: '#ffffff', fontWeight: '700' }}>{part}</strong> : part
+                  ))}
+                </span>
+              </div>
+            );
+          }
+
+          // Détection d'une puce tiret (- ou •)
+          if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+            const content = trimmed.substring(2);
+            return (
+              <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', margin: '3px 0', paddingLeft: '4px' }}>
+                <span style={{ color: '#38bdf8', fontSize: '0.9rem', lineHeight: '1.4' }}>•</span>
+                <span style={{ color: '#cbd5e1', fontSize: '0.86rem', lineHeight: '1.5' }}>
+                  {content.split('**').map((part, i) => (
+                    i % 2 === 1 ? <strong key={i} style={{ color: '#ffffff', fontWeight: '700' }}>{part}</strong> : part
+                  ))}
+                </span>
+              </div>
+            );
+          }
+
+          // Détection d'un titre de section (terminant par : ou gras)
+          if (trimmed.endsWith(':') || trimmed.startsWith('##') || (trimmed.startsWith('**') && trimmed.endsWith('**'))) {
+            const title = trimmed.replace(/^##\s*/, '').replace(/\*\*/g, '');
+            return (
+              <div key={idx} style={{
+                color: '#ffffff',
+                fontWeight: '700',
+                fontSize: '0.94rem',
+                marginTop: idx === 0 ? '0' : '10px',
+                marginBottom: '4px',
+                letterSpacing: '-0.01em'
+              }}>
+                {title}
+              </div>
+            );
+          }
+
+          // Paragraphe normal
+          return (
+            <div key={idx} style={{ color: '#cbd5e1', fontSize: '0.86rem', lineHeight: '1.55' }}>
+              {trimmed.split('**').map((part, i) => (
+                i % 2 === 1 ? <strong key={i} style={{ color: '#ffffff', fontWeight: '700' }}>{part}</strong> : part
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -224,7 +333,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
 
     const assistantReply = (apiRes.success && apiRes.response)
       ? apiRes.response
-      : `✅ **Étape 1 certifiée et mémorisée en base de données !**\n\nJ'ai audité vos encaissements **${operatorName}** sur 12 mois.\nChiffre d'affaires mensuel : **${extractedWave.monthlyRevenue.toLocaleString('fr-FR')} FCFA** (${extractedWave.transactionsCount} opérations).\n\n👉 Passons à l'étape 2 : votre **Carnet de Caisse** (achats de marchandises, loyer et dépenses). Cliquez ci-dessous ou déposez votre photo.`;
+      : `Points d'audit certifiés :\n1. Chiffre d'affaires mensuel certifié : **${extractedWave.monthlyRevenue.toLocaleString('fr-FR')} FCFA**\n2. Régularité des encaissements : **${extractedWave.transactionsCount} opérations** auditées sur 12 mois\n3. Rapprochement bancaire : Historique **${operatorName}** conforme et éligible au score de crédit\n\nActions recommandées pour la suite :\n1. Scanner votre Carnet de Caisse pour déduire les achats de marchandises\n2. Vérifier vos dépenses courantes d'exploitation`;
 
     const assistantMsg = {
       id: Date.now() + 1,
@@ -291,7 +400,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
 
     const assistantReply = (apiRes.success && apiRes.response)
       ? apiRes.response
-      : `✅ **Étape 2 validée : Carnet de caisse audité !**\n\n- Achats de marchandises : **${extractedCarnet.purchasesGoods.toLocaleString('fr-FR')} FCFA / mois**\n- Dépenses courantes (Loyer, Transport, Énergie) : **${extractedCarnet.operatingCharges.toLocaleString('fr-FR')} FCFA**\n- **Bénéfice Net : +${extractedCarnet.netMargin.toLocaleString('fr-FR')} FCFA / mois** (Marge : **${extractedCarnet.marginRate}**)\n\n👉 Passons à l'étape 3 : Vos documents **RCCM et NINEA** pour la vérification juridique officielle.`;
+      : `Livre de caisse et charges audités :\n1. Achats de marchandises : **${extractedCarnet.purchasesGoods.toLocaleString('fr-FR')} FCFA / mois**\n2. Charges fixes d'exploitation : **${extractedCarnet.operatingCharges.toLocaleString('fr-FR')} FCFA** (loyer, transport)\n3. Bénéfice net d'exploitation : **+${extractedCarnet.netMargin.toLocaleString('fr-FR')} FCFA / mois** (Marge : **${extractedCarnet.marginRate}**)\n\nProchaine vérification juridique :\n1. Confirmer vos documents légaux **RCCM & NINEA** pour attester l'immatriculation`;
 
     const assistantMsg = {
       id: Date.now() + 1,
@@ -358,7 +467,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
 
     const assistantReply = (apiRes.success && apiRes.response)
       ? apiRes.response
-      : `✅ **Étape 3 validée : Identité juridique conforme !**\n\n- Entreprise : **${extractedLegal.companyName}**\n- N° NINEA : \`${extractedLegal.ninea}\`\n- N° RCCM : \`${extractedLegal.rccm}\`\n- Ancienneté : **${extractedLegal.seniority}**\n\n🎉 **Toutes les pièces requises sont réunies !**\nCliquez ci-dessous pour déclencher le calcul certifié SYSCOHADA SMT et générer votre Passeport Financier.`;
+      : `Vérification juridique officielle :\n1. Entreprise certifiée : **${extractedLegal.companyName}**\n2. Immatriculation nationale : NINEA \`${extractedLegal.ninea}\` · RCCM \`${extractedLegal.rccm}\`\n3. Ancienneté d'exploitation : **${extractedLegal.seniority}**\n\nÉtape finale de certification :\n1. Toutes les pièces requises sont vérifiées et certifiées conformes\n2. Cliquez ci-dessous pour déclencher le calcul certifié SYSCOHADA SMT et générer votre Passeport`;
 
     const assistantMsg = {
       id: Date.now() + 1,
@@ -436,6 +545,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
       step: 4,
       isBilanFinalResult: true,
       bilan: bilanData,
+      text: `Synthèse de l'audit financier certifié :\n1. Chiffre d'Affaires annuel certifié : **${bilanData.caAnnuel.toLocaleString('fr-FR')} FCFA**\n2. Marge nette d'exploitation : **+${bilanData.resultatNet.toLocaleString('fr-FR')} FCFA** (${bilanData.scoreCredit})\n3. Capacité de garantie FONGIP : **${bilanData.garantieFongip}** accordée\n\nDocuments financiers disponibles :\n1. Bilan Comptable SYSCOHADA SMT et compte de résultat certifiés\n2. Passeport Financier PME scellé pour transmission aux banques`,
       timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -528,11 +638,11 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         zIndex: 25,
         flexShrink: 0
       }}>
-        {/* Titre à gauche : Sparkle Magenta + AI Assistant */}
+        {/* Titre à gauche : Sparkle Cyan + AI Assistant */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={18} color="#d946ef" style={{ filter: 'drop-shadow(0 0 8px rgba(217, 70, 239, 0.6))' }} />
+          <Sparkles size={18} color="#38bdf8" style={{ filter: 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.6))' }} />
           <span style={{ fontSize: '0.98rem', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.01em' }}>
-            AI Assistant
+            Passeport Financier & Audit
           </span>
           {backendStatus.online && (
             <span style={{
@@ -831,77 +941,73 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             MESSAGES DE LA CONVERSATION
         ====================================================== */}
         {messages.map((msg, index) => (
-          <div
-            key={msg.id}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-              gap: '6px'
-            }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '8px',
-              maxWidth: '92%',
-              flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row'
-            }}>
-              {/* Orbe miniature pour l'IA */}
-              {msg.sender === 'assistant' && (
-                <img
-                  src="/ai_holographic_orb.jpg"
-                  alt="Orb"
-                  style={{
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                    marginTop: '2px'
-                  }}
-                />
-              )}
-
-              {/* Bulle de texte */}
+          <React.Fragment key={msg.id}>
+            {/* Timestamp centré au début du fil (Style exact screenshot: Today 12:43 PM) */}
+            {index === 0 && (
               <div style={{
-                background: msg.sender === 'user' ? '#26262b' : '#1f1f23',
-                border: '1px solid rgba(255, 255, 255, 0.07)',
-                borderRadius: msg.sender === 'user' ? '20px 20px 4px 20px' : '4px 20px 20px 20px',
-                padding: '12px 14px',
-                color: '#ffffff',
-                fontSize: '0.84rem',
-                lineHeight: 1.5,
-                boxShadow: '0 4px 18px rgba(0, 0, 0, 0.4)'
+                textAlign: 'center',
+                color: 'rgba(255, 255, 255, 0.42)',
+                fontSize: '0.74rem',
+                fontWeight: '500',
+                margin: '2px 0 10px'
               }}>
-                {/* Photos éventuelles jointes */}
-                {msg.photos && msg.photos.length > 0 && (
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                    {msg.photos.map((p, idx) => (
-                      <img
-                        key={idx}
-                        src={p.url}
-                        alt="Pièce"
-                        style={{
-                          width: '64px',
-                          height: '64px',
-                          borderRadius: '8px',
-                          objectFit: 'cover',
-                          border: '1px solid rgba(255, 255, 255, 0.2)'
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+                Aujourd'hui {msg.timestamp || '12:43'}
+              </div>
+            )}
 
-                {/* Contenu textuel markdown */}
-                {msg.text && (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>
-                    {msg.text.split('**').map((part, i) => (
-                      i % 2 === 1 ? <strong key={i} style={{ color: '#ffffff', fontWeight: '800' }}>{part}</strong> : part
-                    ))}
-                  </div>
-                )}
+            {/* MESSAGE UTILISATEUR : Bulle sombre arrondie alignée à droite */}
+            {msg.sender === 'user' && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                width: '100%',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  background: '#232328',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '18px',
+                  padding: '12px 16px',
+                  color: '#f3f4f6',
+                  fontSize: '0.88rem',
+                  lineHeight: '1.5',
+                  maxWidth: '85%',
+                  boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)'
+                }}>
+                  {/* Photos éventuelles jointes */}
+                  {msg.photos && msg.photos.length > 0 && (
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      {msg.photos.map((p, idx) => (
+                        <img
+                          key={idx}
+                          src={p.url}
+                          alt="Pièce"
+                          style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '8px',
+                            objectFit: 'cover',
+                            border: '1px solid rgba(255, 255, 255, 0.2)'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{msg.text}</div>
+                </div>
+              </div>
+            )}
+
+            {/* MESSAGE ASSISTANT IA : Sans boîte englobante, typographie directe + boutons d'action + cartes sources */}
+            {msg.sender === 'assistant' && (
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                marginBottom: '16px'
+              }}>
+                {/* Rendu textuel hiérarchique avec pastilles numérotées ❶, ❷, ❸ */}
+                {msg.text && renderFormattedAiContent(msg.text)}
 
                 {/* CARTE RÉSULTAT ÉTAPE 1 (WAVE) */}
                 {msg.isStep1Result && (
@@ -1033,120 +1139,327 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   </div>
                 )}
 
+                {/* Boutons d'action sous la réponse : [ ❐ Copy ] [ ↺ Try again ] */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  gap: '4px',
-                  marginTop: '4px',
-                  fontSize: '0.64rem',
-                  color: 'rgba(255, 255, 255, 0.45)'
+                  gap: '8px',
+                  marginTop: '12px'
                 }}>
-                  <span>{msg.timestamp}</span>
-                  {msg.sender === 'user' && <CheckCheck size={12} color="#93c5fd" />}
+                  <button
+                    onClick={() => handleCopyText(msg.text, msg.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: '#232328',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '9999px',
+                      padding: '6px 14px',
+                      color: copiedId === msg.id ? '#4ade80' : 'rgba(255, 255, 255, 0.85)',
+                      fontSize: '0.78rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#2c2c33'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#232328'}
+                  >
+                    {copiedId === msg.id ? <Check size={13} color="#4ade80" /> : <Copy size={13} />}
+                    <span>{copiedId === msg.id ? 'Copié' : 'Copy'}</span>
+                  </button>
+
+                  <button
+                    onClick={handleRetryLastAction}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: '#232328',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '9999px',
+                      padding: '6px 14px',
+                      color: 'rgba(255, 255, 255, 0.85)',
+                      fontSize: '0.78rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#2c2c33'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#232328'}
+                  >
+                    <RotateCcw size={13} />
+                    <span>Try again</span>
+                  </button>
+                </div>
+
+                {/* Carte 2 sources found (Style exact de la capture) */}
+                <div style={{
+                  background: '#19191d',
+                  border: '1px solid rgba(255, 255, 255, 0.07)',
+                  borderRadius: '16px',
+                  padding: '12px 14px',
+                  marginTop: '12px',
+                  width: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{
+                    fontSize: '0.78rem',
+                    color: 'rgba(255, 255, 255, 0.55)',
+                    fontWeight: '600'
+                  }}>
+                    2 sources found
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {/* Source 1 : Relevé Mobile Money */}
+                    <div 
+                      onClick={() => { setShowMemoryDrawer(true); refreshMemory(); }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        color: '#e2e8f0',
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        padding: '4px 6px',
+                        borderRadius: '8px',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'rgba(249, 115, 22, 0.15)',
+                          color: '#f97316'
+                        }}>
+                          <Target size={12} />
+                        </span>
+                        <span style={{ fontWeight: '500' }}>Relevé Mobile Money {operatorName}</span>
+                      </div>
+                      <ExternalLink size={13} color="rgba(255, 255, 255, 0.45)" />
+                    </div>
+
+                    {/* Source 2 : SYSCOHADA SMT */}
+                    <div 
+                      onClick={() => { setShowMemoryDrawer(true); refreshMemory(); }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        color: '#e2e8f0',
+                        fontSize: '0.82rem',
+                        cursor: 'pointer',
+                        padding: '4px 6px',
+                        borderRadius: '8px',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          width: '18px',
+                          height: '18px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'rgba(56, 189, 248, 0.15)',
+                          color: '#38bdf8'
+                        }}>
+                          <Compass size={12} />
+                        </span>
+                        <span style={{ fontWeight: '500' }}>Plan Comptable SYSCOHADA SMT</span>
+                      </div>
+                      <ExternalLink size={13} color="rgba(255, 255, 255, 0.45)" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Boutons de progression guidée pour l'étape suivante */}
+                {index === messages.length - 1 && (
+                  <div style={{ width: '100%', marginTop: '12px' }}>
+                    {pipelineStep === 2 && (
+                      <button
+                        onClick={runStep2CarnetExtraction}
+                        style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #ca8a04 0%, #eab308 100%)',
+                          color: '#000000',
+                          border: 'none',
+                          borderRadius: '14px',
+                          padding: '12px 14px',
+                          fontSize: '0.86rem',
+                          fontWeight: '800',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 20px rgba(234, 179, 8, 0.5)'
+                        }}
+                      >
+                        <BookOpen size={16} />
+                        <span>📖 Analyser mon Carnet de Caisse</span>
+                      </button>
+                    )}
+
+                    {pipelineStep === 3 && (
+                      <button
+                        onClick={runStep3LegalExtraction}
+                        style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #7e22ce 0%, #9333ea 100%)',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '14px',
+                          padding: '12px 14px',
+                          fontSize: '0.86rem',
+                          fontWeight: '800',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 20px rgba(147, 51, 234, 0.5)'
+                        }}
+                      >
+                        <Building2 size={16} />
+                        <span>🏛️ Valider mon RCCM & NINEA</span>
+                      </button>
+                    )}
+
+                    {pipelineStep === 4 && (
+                      <button
+                        onClick={runStep4BilanGeneration}
+                        style={{
+                          width: '100%',
+                          background: 'linear-gradient(135deg, #135457 0%, #1e5c4d 50%, #104c3b 100%)',
+                          color: '#ffffff',
+                          border: '1.5px solid rgba(74, 222, 128, 0.5)',
+                          borderRadius: '14px',
+                          padding: '13px 16px',
+                          fontSize: '0.88rem',
+                          fontWeight: '800',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          cursor: 'pointer',
+                          boxShadow: '0 6px 22px rgba(22, 92, 77, 0.85)'
+                        }}
+                      >
+                        <FileSpreadsheet size={16} color="#4ade80" />
+                        <span>📊 Générer mon Bilan SYSCOHADA Officiel</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+
+        {/* ======================================================
+            ÉTAT DE RÉFLEXION & TRAVAIL DE L'IA (Live Reasoning & Sources)
+            Affichage dynamique exact pendant qu'Amadou travaille
+        ====================================================== */}
+        {isTyping && (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            width: '100%',
+            margin: '4px 0 12px'
+          }}>
+            {/* Badge animé : Sparkle + Amadou analyse */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              color: '#38bdf8',
+              fontSize: '0.82rem',
+              fontWeight: '600'
+            }}>
+              <Sparkles size={16} className="animate-spin" style={{ animation: 'spin 3s linear infinite' }} />
+              <span>Amadou analyse et audite vos flux...</span>
+            </div>
+
+            {/* Carte de travail active (Sources en cours de consultation) */}
+            <div style={{
+              background: '#19191d',
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              borderRadius: '16px',
+              padding: '12px 14px',
+              boxShadow: '0 4px 20px rgba(0, 112, 243, 0.15)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span style={{ fontSize: '0.78rem', color: 'rgba(255, 255, 255, 0.6)', fontWeight: '600' }}>
+                  2 sources en cours d'analyse
+                </span>
+                <span style={{
+                  fontSize: '0.68rem',
+                  padding: '2px 8px',
+                  borderRadius: '9999px',
+                  background: 'rgba(56, 189, 248, 0.15)',
+                  color: '#38bdf8',
+                  fontWeight: '700'
+                }}>
+                  En cours...
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#e2e8f0', fontSize: '0.82rem' }}>
+                  <span style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(249, 115, 22, 0.15)', color: '#f97316', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Target size={12} />
+                  </span>
+                  <span>Relevé Mobile Money {operatorName}</span>
+                  <RefreshCw size={11} className="animate-spin" style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.4)', animation: 'spin 1.5s linear infinite' }} />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#e2e8f0', fontSize: '0.82rem' }}>
+                  <span style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Compass size={12} />
+                  </span>
+                  <span>Plan Comptable SYSCOHADA SMT</span>
+                  <RefreshCw size={11} className="animate-spin" style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.4)', animation: 'spin 1.5s linear infinite' }} />
                 </div>
               </div>
             </div>
 
-            {/* Boutons d'action guidés pour l'étape active */}
-            {msg.sender === 'assistant' && index === messages.length - 1 && (
-              <div style={{ width: '100%', maxWidth: '92%', marginTop: '6px' }}>
-                {pipelineStep === 2 && (
-                  <button
-                    onClick={runStep2CarnetExtraction}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #ca8a04 0%, #eab308 100%)',
-                      color: '#000000',
-                      border: 'none',
-                      borderRadius: '14px',
-                      padding: '12px 14px',
-                      fontSize: '0.86rem',
-                      fontWeight: '800',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      boxShadow: '0 6px 20px rgba(234, 179, 8, 0.5)'
-                    }}
-                  >
-                    <BookOpen size={16} />
-                    <span>📖 Analyser mon Carnet de Caisse</span>
-                  </button>
-                )}
-
-                {pipelineStep === 3 && (
-                  <button
-                    onClick={runStep3LegalExtraction}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #7e22ce 0%, #9333ea 100%)',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '14px',
-                      padding: '12px 14px',
-                      fontSize: '0.86rem',
-                      fontWeight: '800',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      boxShadow: '0 6px 20px rgba(147, 51, 234, 0.5)'
-                    }}
-                  >
-                    <Building2 size={16} />
-                    <span>🏛️ Valider mon RCCM & NINEA</span>
-                  </button>
-                )}
-
-                {pipelineStep === 4 && (
-                  <button
-                    onClick={runStep4BilanGeneration}
-                    style={{
-                      width: '100%',
-                      background: 'linear-gradient(135deg, #135457 0%, #1e5c4d 50%, #104c3b 100%)',
-                      color: '#ffffff',
-                      border: '1.5px solid rgba(74, 222, 128, 0.5)',
-                      borderRadius: '14px',
-                      padding: '13px 16px',
-                      fontSize: '0.88rem',
-                      fontWeight: '800',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      cursor: 'pointer',
-                      boxShadow: '0 6px 22px rgba(22, 92, 77, 0.85)'
-                    }}
-                  >
-                    <FileSpreadsheet size={16} color="#4ade80" />
-                    <span>📊 Générer mon Bilan SYSCOHADA Officiel</span>
-                  </button>
-                )}
+            {/* Étapes de raisonnement en temps réel avec pastilles numérotées */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', paddingLeft: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.8rem' }}>
+                <span style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#232328', color: '#ffffff', fontSize: '0.68rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  1
+                </span>
+                <span>{typingText || 'Vérification de la conformité des flux financiers...'}</span>
               </div>
-            )}
-          </div>
-        ))}
-
-        {/* Indicateur de réflexion IA */}
-        {isTyping && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '16px',
-            padding: '8px 12px',
-            width: 'fit-content',
-            color: '#38bdf8',
-            fontSize: '0.74rem',
-            fontWeight: '600'
-          }}>
-            <RefreshCw size={13} className="animate-spin" style={{ animation: 'spin 1.2s linear infinite' }} />
-            <span>{typingText}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'rgba(255, 255, 255, 0.45)', fontSize: '0.8rem' }}>
+                <span style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#232328', color: 'rgba(255,255,255,0.6)', fontSize: '0.68rem', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  2
+                </span>
+                <span>Calcul du score de solvabilité et garantie bancaire DSCR...</span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1370,11 +1683,13 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           style={{
             display: 'flex',
             alignItems: 'center',
-            background: '#202024',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#19191d',
+            border: `1.5px solid ${inputFocused ? '#0070f3' : 'rgba(255, 255, 255, 0.1)'}`,
+            boxShadow: inputFocused ? '0 0 16px rgba(0, 112, 243, 0.45)' : 'none',
             borderRadius: '9999px',
-            padding: '6px 8px 6px 18px',
-            gap: '8px'
+            padding: '5px 6px 5px 18px',
+            gap: '8px',
+            transition: 'border-color 0.2s, box-shadow 0.2s'
           }}
         >
           <input
@@ -1391,13 +1706,15 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             placeholder="Ask AI anything..."
             style={{
               flex: 1,
               background: 'transparent',
               border: 'none',
               color: '#ffffff',
-              fontSize: '0.86rem',
+              fontSize: '0.88rem',
               outline: 'none'
             }}
           />
@@ -1414,6 +1731,8 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               alignItems: 'center',
               justifyContent: 'center',
               color: 'rgba(255, 255, 255, 0.6)',
+              background: 'transparent',
+              border: 'none',
               cursor: 'pointer'
             }}
             title="Joindre un document ou capture"
@@ -1421,22 +1740,24 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             <AtSign size={16} />
           </button>
 
-          {/* Bouton ↑ (Envoyer) */}
+          {/* Bouton ↑ (Envoyer) - Style exact cercle bleu vibrant du screenshot */}
           <button
             type="submit"
             style={{
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#ffffff',
-              color: '#000000',
+              background: '#0070f3',
+              color: '#ffffff',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              flexShrink: 0
+              flexShrink: 0,
+              boxShadow: '0 2px 10px rgba(0, 112, 243, 0.5)'
             }}
+            title="Envoyer"
           >
             <ArrowUp size={16} strokeWidth={2.5} />
           </button>
