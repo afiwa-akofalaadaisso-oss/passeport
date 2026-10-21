@@ -47,3 +47,16 @@ class FinancialPassportState(TypedDict, total=False):
     eligible: Optional[bool]                    # Éligibilité bancaire (DSCR >= 1.30)
     bilan_metrics: Optional[Dict[str, Any]]     # Détail complet Actif/Passif et Compte de Résultat
     pdf_generated: bool                         # Prêt pour téléchargement / transmission
+
+    # =========================================================================
+    # ARCHITECTURE ANTI-HALLUCINATION MULTI-PHOTOS (12+ PHOTOS ➔ BILAN CERTIFIÉ)
+    # =========================================================================
+    photos: Optional[List[Any]]                  # Lot de 12+ photos brutes
+    documents_ocrises: Optional[List[Dict[str, Any]]] # Résultat OCR Vision par photo
+    s1_factures: Optional[List[Dict[str, Any]]]  # Silo 1 : Factures achats/ventes
+    s2_cash_wave: Optional[List[Dict[str, Any]]] # Silo 2 : Reçus Cash & Mobile Money
+    s3_legal: Optional[List[Dict[str, Any]]]     # Silo 3 : Documents officiels RCCM/NINEA
+    s_illisibles: Optional[List[Dict[str, Any]]] # Photos floues ou rejetées
+    bilan_template: Optional[Dict[str, Any]]     # Squelette officiel SYSCOHADA rempli
+    bilan_certifie: Optional[Dict[str, Any]]     # Bilan équilibré final avec ratios et audit trail
+    audit_trail: Optional[List[Dict[str, Any]]]  # Preuves photo associées à chaque ligne

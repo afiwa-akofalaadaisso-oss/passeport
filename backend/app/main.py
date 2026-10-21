@@ -17,9 +17,9 @@ from dotenv import load_dotenv
 # Chargement du fichier d'environnement .env
 load_dotenv()
 
-from app.graph import build_financial_passport_graph
+from app.graph import build_financial_passport_graph, build_batch_bilan_graph, load_bilan_template
 from app.tools.vision_ocr import extract_document_data
-from app.tools.accounting import compute_smt_bilan_and_dscr
+from app.tools.accounting import compute_smt_bilan_and_dscr, compute_certified_bilan_from_template
 from app.db import (
     save_or_update_merchant,
     add_memory_fact,
@@ -47,8 +47,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Instanciation de l'agent LangGraph avec mémoire
+# Instanciation des agents LangGraph :
+# 1. Agent conversationnel interactif
 passport_agent = build_financial_passport_graph()
+# 2. Agent batch 5 nœuds Anti-Hallucination (12+ photos ➔ Bilan Formulaire 10)
+batch_bilan_agent = build_batch_bilan_graph()
 
 
 # ============================================================================
@@ -81,6 +84,14 @@ class VerifyCodeRequest(BaseModel):
 
 class VerifyPinRequest(BaseModel):
     pin: str = Field(..., description="Code PIN secret (ex: 2026)")
+
+
+class BatchAuditRequest(BaseModel):
+    user_id: str = Field("merchant_default", description="Identifiant unique du commerçant")
+    operator: Optional[str] = Field("WAVE", description="Opérateur : WAVE ou ORANGE")
+    photos: List[Any] = Field(default_factory=list, description="Lot de photos (reçus, factures, relevés)")
+    mensualite_cible: Optional[float] = Field(150000.0, description="Mensualité de prêt ciblée en FCFA")
+
 
 
 # Magasin en mémoire pour les codes OTP avec horodatage d'expiration (10 min)
@@ -251,6 +262,84 @@ def extract_endpoint(req: ExtractRequest):
         "success": True,
         "doc_type": req.doc_type,
         "data": result
+    }
+
+
+@app.get("/api/bilan-template")
+def get_bilan_template():
+    """Retourne le squelette officiel Formulaire 10 SYSCOHADA (Actif Rose / Passif Orange)."""
+    return {
+        "success": True,
+        "template": load_bilan_template()
+    }
+
+
+@app.post("/api/audit-batch")
+def audit_batch_endpoint(req: BatchAuditRequest):
+    """
+    ARCHITECTURE ANTI-HALLUCINATION EN 5 NŒUDS :
+    [1. UPLOAD] -> [2. OCR VISION] -> [3. CLASSIFICATEUR] -> [4. EXTRACTEUR COMPTABLE] -> [5. GÉNÉRATEUR BILAN]
+    Traite un lot de 12+ photos et produit le Bilan Formulaire 10 certifié avec traçabilité intégrale.
+    """
+    initial_state = {
+        "photos": req.photos or [],
+        "operator": (req.operator or "WAVE").upper(),
+        "messages": []
+    }
+
+    # Exécution du StateGraph 5 nœuds
+    result = batch_bilan_agent.invoke(initial_state, config={"configurable": {"thread_id": req.user_id}})
+
+    bilan_certifie = result.get("bilan_certifie", {})
+    audit_trail = result.get("audit_trail", []) or []
+    docs_ocr = result.get("documents_ocrises", []) or []
+    meta = bilan_certifie.get("meta", {})
+    totaux = bilan_certifie.get("totaux", {})
+    solva = bilan_certifie.get("analyse_solvabilite", {})
+
+    # Persistance dans la base relationnelle SQLite
+    save_or_update_merchant(
+        req.user_id,
+        operator=(req.operator or "wave").lower(),
+        business_name=meta.get("entite_nom")
+    )
+
+    save_audit_milestone(
+        req.user_id,
+        5,
+        "Bilan Formulaire 10 Certifié (12+ photos)",
+        {
+            "total_actif": totaux.get("total_actif_net"),
+            "total_passif": totaux.get("total_passif_net"),
+            "dscr": solva.get("dscr"),
+            "score_credit": solva.get("score_credit"),
+            "pieces_justificatives_count": len(audit_trail),
+            "documents_count": len(docs_ocr)
+        }
+    )
+
+    if totaux.get("total_actif_net"):
+        add_memory_fact(req.user_id, "finance", "Total Bilan Certifié", f"{totaux.get('total_actif_net'):,.0f} FCFA")
+    if solva.get("dscr"):
+        add_memory_fact(req.user_id, "finance", "Ratio DSCR", f"{solva.get('dscr')} ({solva.get('score_credit')})")
+    if meta.get("entite_nom"):
+        add_memory_fact(req.user_id, "identite", "Raison Sociale", meta.get("entite_nom"))
+    if meta.get("ninea"):
+        add_memory_fact(req.user_id, "identite", "NINEA Certifié", meta.get("ninea"))
+
+    summary_text = ""
+    for m in reversed(result.get("messages", [])):
+        if hasattr(m, "content") and m.content:
+            summary_text = str(m.content)
+            break
+
+    return {
+        "success": True,
+        "bilan_certifie": bilan_certifie,
+        "audit_trail": audit_trail,
+        "documents_ocrises": docs_ocr,
+        "s_illisibles": result.get("s_illisibles", []),
+        "summary": summary_text
     }
 
 

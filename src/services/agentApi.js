@@ -282,4 +282,66 @@ export const verifyAuthPin = async (pin) => {
   }
 };
 
+/**
+ * Exécute l'audit multi-photos en 5 nœuds Anti-Hallucination (12+ photos ➔ Formulaire 10).
+ */
+export const runBatchAudit = async ({
+  userId = 'merchant_default',
+  operator = 'WAVE',
+  photos = [],
+  mensualiteCible = 150000
+}) => {
+  try {
+    let processedPhotos = [];
+    for (const p of photos) {
+      if (typeof p === 'string') {
+        processedPhotos.push(p);
+      } else if (p instanceof File || p instanceof Blob) {
+        const b64 = await fileToDataUrl(p);
+        processedPhotos.push(b64);
+      } else if (p && p.data) {
+        processedPhotos.push(p.data);
+      }
+    }
+
+    const res = await fetch(`${API_BASE_URL}/audit-batch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        operator: operator.toUpperCase(),
+        photos: processedPhotos,
+        mensualite_cible: mensualiteCible
+      }),
+      signal: AbortSignal.timeout(60000)
+    });
+
+    if (!res.ok) throw new Error('Erreur lors du traitement du lot de photos');
+    return await res.json();
+  } catch (err) {
+    console.error('Erreur runBatchAudit:', err);
+    throw err;
+  }
+};
+
+/**
+ * Récupère le squelette officiel Formulaire 10 SYSCOHADA (Actif Rose / Passif Orange).
+ */
+export const getBilanTemplate = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/bilan-template`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Impossible de charger le modèle de bilan');
+    return await res.json();
+  } catch (err) {
+    console.error('Erreur getBilanTemplate:', err);
+    return null;
+  }
+};
+
 

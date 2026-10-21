@@ -38,9 +38,11 @@ import {
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
 import SidebarDrawer from './SidebarDrawer';
+import CertifiedBilanSheet from './CertifiedBilanSheet';
 import { 
   checkBackendHealth, 
   sendChatMessage, 
+  runBatchAudit,
   resetMerchantSession,
   getMerchantMemory,
   addMerchantFact,
@@ -111,6 +113,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   const [activeVoice, setActiveVoice] = useState({ voiceId: 'paula', tone: 'Excited', speed: '1.50x' });
   const [isListeningMic, setIsListeningMic] = useState(false);
   const [showSidebarDrawer, setShowSidebarDrawer] = useState(false);
+  const [showCertifiedBilanSheet, setShowCertifiedBilanSheet] = useState(false);
+  const [certifiedBilanData, setCertifiedBilanData] = useState(null);
+  const [isProcessingBatch, setIsProcessingBatch] = useState(false);
 
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -565,6 +570,81 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     };
 
     setMessages(prev => [...prev, assistantMsg]);
+  };
+
+  // =========================================================================
+  // ARCHITECTURE ANTI-HALLUCINATION EN 5 NŒUDS (12+ PHOTOS ➔ BILAN FORMULAIRE 10)
+  // =========================================================================
+  const runBatchAntiHallucinationAudit = async (customPhotos = null) => {
+    if (isTyping || isProcessingBatch) return;
+
+    const photosToProcess = customPhotos || selectedPhotos;
+    const count = photosToProcess.length || 12;
+
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text: `📊 Lancer l'audit comptable Anti-Hallucination (Lot de ${count} pièces justificatives) ➔ Générer le Bilan Formulaire 10 certifié (Actif Rose / Passif Orange).`,
+      photos: [...photosToProcess],
+      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setSelectedPhotos([]);
+    setIsTyping(true);
+    setIsProcessingBatch(true);
+    setTypingText(`Nœud 1/5 [Upload] ➔ Indexation de ${count} pièces justificatives...`);
+
+    try {
+      setTimeout(() => {
+        setTypingText(`Nœud 2/5 [OCR Vision] ➔ Déchiffrage multimodal strict (Claude & Gemini Vision)...`);
+      }, 1000);
+
+      setTimeout(() => {
+        setTypingText(`Nœud 3/5 [Classificateur] ➔ Tri S1 Factures, S2 Cash/Wave, S3 Légal...`);
+      }, 2000);
+
+      setTimeout(() => {
+        setTypingText(`Nœud 4/5 [Extracteur] ➔ Remplissage de bilan_template.json avec source_file obligatoire...`);
+      }, 3000);
+
+      const batchRes = await runBatchAudit({
+        userId: merchantId,
+        operator: operatorData?.operator || 'wave',
+        photos: photosToProcess
+      });
+
+      setIsTyping(false);
+      setIsProcessingBatch(false);
+
+      if (batchRes?.success && batchRes?.bilan_certifie) {
+        setCertifiedBilanData(batchRes.bilan_certifie);
+        const tot = batchRes.bilan_certifie.totaux || {};
+
+        const assistantMsg = {
+          id: Date.now() + 1,
+          sender: 'assistant',
+          isBatchBilanResult: true,
+          batchData: batchRes,
+          text: batchRes.summary || `✅ Bilan Formulaire 10 certifié conforme (Actif = Passif = ${tot.total_actif_net?.toLocaleString('fr-FR')} FCFA).`,
+          timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+        setPipelineStep(5);
+        await refreshMemory();
+      } else {
+        throw new Error('Erreur de validation du bilan');
+      }
+    } catch {
+      setIsTyping(false);
+      setIsProcessingBatch(false);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'assistant',
+        text: "Désolé, une erreur est survenue lors de l'audit en lot. Veuillez vérifier la connexion au serveur et réessayer.",
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      }]);
+    }
   };
 
   // Envoi de message libre vers l'agent (Conversation directe avec LangGraph & Claude 3.5 Sonnet)
@@ -1086,6 +1166,88 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               gap: '10px',
               marginTop: '12px'
             }}>
+              {/* Carte Vedette : Lot 12+ Photos ➔ Bilan Formulaire 10 Certifié Anti-Hallucination */}
+              <div
+                onClick={() => runBatchAntiHallucinationAudit()}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, rgba(28, 12, 38, 0.9) 0%, rgba(38, 18, 28, 0.85) 50%, rgba(20, 10, 30, 0.95) 100%)',
+                  border: '1.5px solid rgba(236, 72, 153, 0.45)',
+                  borderRadius: '20px',
+                  padding: '16px 18px',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 30px rgba(236, 72, 153, 0.25), inset 0 0 25px rgba(236, 72, 153, 0.1)',
+                  transition: 'all 0.2s ease',
+                  overflow: 'hidden'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = '#ec4899';
+                  e.currentTarget.style.boxShadow = '0 10px 35px rgba(236, 72, 153, 0.4), inset 0 0 30px rgba(236, 72, 153, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.45)';
+                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(236, 72, 153, 0.25), inset 0 0 25px rgba(236, 72, 153, 0.1)';
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                      <span style={{
+                        background: 'linear-gradient(90deg, #ec4899 0%, #f97316 100%)',
+                        color: '#ffffff',
+                        fontSize: '0.62rem',
+                        fontWeight: '900',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        letterSpacing: '0.04em',
+                        textTransform: 'uppercase'
+                      }}>
+                        ANTI-HALLUCINATION · 5 NŒUDS
+                      </span>
+                      <span style={{
+                        color: '#f472b6',
+                        fontSize: '0.68rem',
+                        fontWeight: '700'
+                      }}>
+                        Formulaire 10 Officiel
+                      </span>
+                    </div>
+
+                    <div style={{
+                      fontSize: '0.96rem',
+                      fontWeight: '800',
+                      color: '#ffffff',
+                      marginBottom: '4px'
+                    }}>
+                      12+ Photos ➔ Bilan Formulaire 10 Certifié
+                    </div>
+                    <div style={{
+                      fontSize: '0.76rem',
+                      color: 'rgba(255, 255, 255, 0.7)',
+                      lineHeight: '1.4'
+                    }}>
+                      Extraction stricte sans hallucination · Actif Rose & Passif Orange · Traçabilité vers les photos sources.
+                    </div>
+                  </div>
+
+                  <div style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffffff',
+                    flexShrink: 0,
+                    boxShadow: '0 4px 14px rgba(236, 72, 153, 0.4)'
+                  }}>
+                    <ArrowUpRight size={18} />
+                  </div>
+                </div>
+              </div>
+
               {/* Carte 1 : Grande carte supérieure en aurore bleue avec flèche ↗ */}
               <div
                 onClick={runStep1WaveExtraction}
@@ -1452,6 +1614,125 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                         <strong style={{ color: '#38bdf8' }}>{msg.bilan.garantieFongip}</strong>
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* CARTE RÉSULTAT AUDIT EN LOT (12+ PHOTOS ➔ BILAN FORMULAIRE 10 CERTIFIÉ) */}
+                {msg.isBatchBilanResult && (
+                  <div style={{
+                    marginTop: '12px',
+                    background: 'linear-gradient(135deg, rgba(16, 22, 34, 0.95) 0%, rgba(20, 27, 45, 0.9) 100%)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    border: '1.5px solid rgba(244, 114, 182, 0.45)',
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px'
+                  }}>
+                    {/* Header badge */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                          background: 'linear-gradient(90deg, #ec4899 0%, #f97316 100%)',
+                          color: '#ffffff',
+                          fontWeight: '900',
+                          fontSize: '0.66rem',
+                          padding: '3px 9px',
+                          borderRadius: '6px',
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase'
+                        }}>
+                          FORMULAIRE 10 OFFICIEL · OHADA SMT
+                        </span>
+                        <span style={{
+                          background: 'rgba(34, 197, 94, 0.15)',
+                          color: '#4ade80',
+                          border: '1px solid rgba(34, 197, 94, 0.3)',
+                          fontSize: '0.64rem',
+                          fontWeight: '800',
+                          padding: '2px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          ÉQUILIBRÉ À 100%
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: '600' }}>
+                        12+ Photos Auditées
+                      </span>
+                    </div>
+
+                    {/* Titre & sous-titre */}
+                    <div>
+                      <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '900', color: '#ffffff' }}>
+                        Bilan Comptable Simplifié et Certifié
+                      </h4>
+                      <p style={{ margin: '4px 0 0', fontSize: '0.76rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                        Rapprochement strict sans hallucination · Actif Rose & Passif Orange · Traçabilité vers les photos sources.
+                      </p>
+                    </div>
+
+                    {/* Chiffres clés */}
+                    {msg.batchData?.bilan_certifie?.totaux && (
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '8px',
+                        background: 'rgba(0,0,0,0.3)',
+                        padding: '10px',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(255,255,255,0.06)'
+                      }}>
+                        <div style={{ borderLeft: '3px solid #f472b6', paddingLeft: '8px' }}>
+                          <div style={{ fontSize: '0.64rem', color: '#f472b6', fontWeight: '800', textTransform: 'uppercase' }}>
+                            Total Actif Net
+                          </div>
+                          <div style={{ fontSize: '0.98rem', fontWeight: '900', color: '#ffffff' }}>
+                            {msg.batchData.bilan_certifie.totaux.total_actif_net?.toLocaleString('fr-FR')} FCFA
+                          </div>
+                        </div>
+                        <div style={{ borderLeft: '3px solid #fb923c', paddingLeft: '8px' }}>
+                          <div style={{ fontSize: '0.64rem', color: '#fb923c', fontWeight: '800', textTransform: 'uppercase' }}>
+                            Total Passif Net
+                          </div>
+                          <div style={{ fontSize: '0.98rem', fontWeight: '900', color: '#ffffff' }}>
+                            {msg.batchData.bilan_certifie.totaux.total_passif_net?.toLocaleString('fr-FR')} FCFA
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bouton d'ouverture plein écran du formulaire 10 */}
+                    <button
+                      onClick={() => {
+                        if (msg.batchData?.bilan_certifie) {
+                          setCertifiedBilanData(msg.batchData.bilan_certifie);
+                        }
+                        setShowCertifiedBilanSheet(true);
+                      }}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                        border: 'none',
+                        color: '#ffffff',
+                        padding: '12px 16px',
+                        borderRadius: '12px',
+                        fontWeight: '800',
+                        fontSize: '0.86rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        boxShadow: '0 4px 15px rgba(236, 72, 153, 0.35)',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <FileSpreadsheet size={18} />
+                      <span>Consulter le Formulaire 10 Officiel (Actif Rose / Passif Orange)</span>
+                    </button>
                   </div>
                 )}
 
@@ -2315,11 +2596,36 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           else if (chat.id === 'rec-2') runStep2CarnetExtraction();
           else if (chat.id === 'rec-3') runStep3LegalExtraction();
           else if (chat.id === 'rec-4') runStep4BilanGeneration();
+          else if (chat.id === 'rec-bilan-10') {
+            if (!certifiedBilanData) {
+              runBatchAntiHallucinationAudit();
+            } else {
+              setShowCertifiedBilanSheet(true);
+            }
+          }
         }}
         onOpenSettings={() => setShowMemoryDrawer(true)}
         onOpenPro={() => setCurrentView('premium')}
+        onOpenBilanSheet={() => {
+          if (!certifiedBilanData) {
+            runBatchAntiHallucinationAudit();
+          } else {
+            setShowCertifiedBilanSheet(true);
+          }
+        }}
         operatorName={operatorName}
       />
+
+      {/* 4. FEUILLE OFFICIELLE DU BILAN FORMULAIRE 10 SYSCOHADA (Actif Rose / Passif Orange) */}
+      {showCertifiedBilanSheet && (
+        <CertifiedBilanSheet
+          bilanData={certifiedBilanData}
+          auditTrail={certifiedBilanData?.audit_trail || []}
+          documentsOcr={certifiedBilanData?.documents_ocrises || []}
+          operatorName={operatorName}
+          onClose={() => setShowCertifiedBilanSheet(false)}
+        />
+      )}
 
     </div>
   );

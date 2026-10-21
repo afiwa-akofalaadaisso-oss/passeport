@@ -23,6 +23,7 @@ export default function SidebarDrawer({
   onSelectChat, 
   onOpenSettings,
   onOpenPro,
+  onOpenBilanSheet,
   operatorName = 'Wave'
 }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -33,6 +34,7 @@ export default function SidebarDrawer({
 
   // Conversations épinglées
   const pinnedChats = [
+    { id: 'rec-bilan-10', title: '📋 Formulaire 10 Certifié (Rose / Orange)' },
     { id: 'pin-1', title: 'Dossier certifié Wave & NINEA (ETS Diallo)' }
   ];
 
@@ -205,7 +207,60 @@ export default function SidebarDrawer({
           }}
         >
           {/* 1. LISTE DE NAVIGATION PRINCIPALE (Exacte capture ChatGPT) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {/* Formulaire 10 Officiel Certifié */}
+            <div
+              onClick={() => {
+                if (onOpenBilanSheet) onOpenBilanSheet();
+                onClose();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 12px',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                background: isLight 
+                  ? 'linear-gradient(90deg, rgba(236, 72, 153, 0.08) 0%, rgba(249, 115, 22, 0.08) 100%)'
+                  : 'linear-gradient(90deg, rgba(236, 72, 153, 0.16) 0%, rgba(249, 115, 22, 0.16) 100%)',
+                border: '1.5px solid rgba(236, 72, 153, 0.4)',
+                color: textPrimary,
+                transition: 'all 0.2s',
+                marginBottom: '4px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#ec4899';
+                e.currentTarget.style.transform = 'translateX(2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.4)';
+                e.currentTarget.style.transform = 'translateX(0)';
+              }}
+            >
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(236, 72, 153, 0.35)'
+              }}>
+                <Sparkles size={15} color="#ffffff" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.88rem', fontWeight: '800', color: textPrimary, letterSpacing: '-0.01em' }}>
+                  Formulaire 10 Certifié
+                </div>
+                <div style={{ fontSize: '0.70rem', color: '#ec4899', fontWeight: '700' }}>
+                  Bilan SMT · Actif Rose & Passif Orange
+                </div>
+              </div>
+            </div>
+
             {/* Images */}
             <div
               onClick={() => { onClose(); }}

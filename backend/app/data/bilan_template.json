@@ -1,0 +1,133 @@
+{
+  "document_titre": "10 - bilan comptable simplifié et certifié",
+  "meta": {
+    "exercice_debut": "1er janvier",
+    "exercice_fin": "31 décembre",
+    "annee_exercice": "N-1",
+    "entite_nom": "",
+    "rccm": "",
+    "ninea": "",
+    "statut_certification": "certifié conforme - signature"
+  },
+  "ACTIF": {
+    "actif_immobilise_1": {
+      "titre": "Actif Immobilisé [1]",
+      "lignes": {
+        "immobilisations_incorporelles": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+        "immobilisations_corporelles": {
+          "terrains": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "constructions_installations_techniques": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "immobilisations_corporelles_en_cours": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "autres_corporelles": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] }
+        },
+        "immobilisations_financieres": {
+          "participations_creances_rattachees": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "depots_cautionnements_avances_prets": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "autres_titres_immobilises": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] }
+        }
+      },
+      "sous_total_1": { "brut": 0, "amort_prov": 0, "net": 0 }
+    },
+    "comptes_liaison_2": {
+      "titre": "Comptes de liaison [2]",
+      "lignes": {
+        "compte_liaison_fonctionnement": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+        "compte_liaison_investissement": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] }
+      },
+      "sous_total_2": { "brut": 0, "amort_prov": 0, "net": 0 }
+    },
+    "actif_circulant_3": {
+      "titre": "Actif Circulant [3]",
+      "lignes": {
+        "stocks_et_en_cours": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+        "creances": {
+          "redevables_usagers_et_comptes_rattaches": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "valeurs_mobilieres_placement": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "disponibilites": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "charges_constatees_avance": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+          "autres": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] }
+        }
+      },
+      "sous_total_3": { "brut": 0, "amort_prov": 0, "net": 0 }
+    },
+    "comptes_regularisation_4": {
+      "titre": "Comptes de régularisation [4]",
+      "lignes": {
+        "charges_a_repartir": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+        "primes_remboursements_emprunts": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] },
+        "ecarts_conversion_actif": { "brut": 0, "amort_prov": 0, "net": 0, "sources": [] }
+      },
+      "sous_total_4": { "brut": 0, "amort_prov": 0, "net": 0 }
+    },
+    "TOTAL_GENERAL_ACTIF": { "brut": 0, "amort_prov": 0, "net": 0 }
+  },
+  "PASSIF": {
+    "fonds_associatifs_ou_propres_1": {
+      "titre": "Fonds associatifs / Capitaux propres [1]",
+      "lignes": {
+        "fonds_associatifs_capital": { "net": 0, "sources": [] },
+        "ecarts_reevaluation": { "net": 0, "sources": [] },
+        "reserves": { "net": 0, "sources": [] },
+        "report_a_nouveau": { "net": 0, "sources": [] },
+        "resultat_de_exercice": { "net": 0, "sources": [] },
+        "resultat_sous_controle_tiers_financeurs": { "net": 0, "sources": [] },
+        "subventions_investissement": { "net": 0, "sources": [] },
+        "provisions_reglementees": { "net": 0, "sources": [] }
+      },
+      "sous_total_1": { "net": 0 }
+    },
+    "comptes_liaison_2": {
+      "titre": "Comptes de liaison [2]",
+      "lignes": {
+        "compte_liaison_fonctionnement": { "net": 0, "sources": [] },
+        "compte_liaison_investissement": { "net": 0, "sources": [] }
+      },
+      "sous_total_2": { "net": 0 }
+    },
+    "provisions_risques_charges_3": {
+      "titre": "Provisions pour risques et charges [3]",
+      "lignes": {
+        "provisions_pour_risques_et_charges": { "net": 0, "sources": [] },
+        "fonds_dedies": { "net": 0, "sources": [] }
+      },
+      "sous_total_3": { "net": 0 }
+    },
+    "dettes_4": {
+      "titre": "Dettes [4]",
+      "lignes": {
+        "emprunts_dettes_etablissements_credit_plus_un_an": { "net": 0, "sources": [] },
+        "emprunts_dettes_etablissements_credit_moins_un_an": { "net": 0, "sources": [] },
+        "avances_et_acomptes": { "net": 0, "sources": [] },
+        "dettes_fournisseurs": { "net": 0, "sources": [] },
+        "dettes_fiscales_et_sociales": { "net": 0, "sources": [] },
+        "dettes_sur_immobilisations": { "net": 0, "sources": [] },
+        "autres_dettes": { "net": 0, "sources": [] },
+        "produits_constates_avance": { "net": 0, "sources": [] }
+      },
+      "sous_total_4": { "net": 0 }
+    },
+    "ecart_conversion_passif_5": {
+      "titre": "Ecart de conversion passif [5]",
+      "lignes": {
+        "ecart_de_conversion_passif": { "net": 0, "sources": [] }
+      },
+      "sous_total_5": { "net": 0 }
+    },
+    "TOTAL_GENERAL_PASSIF": { "net": 0 }
+  },
+  "plan_comptable_reference_SYSCOHADA": {
+    "101": "Capital social / Fonds associatifs",
+    "12": "Résultat net de l'exercice (Bénéfice/Perte)",
+    "16": "Emprunts auprès des établissements de crédit",
+    "21": "Immobilisations corporelles (installations, équipements)",
+    "31": "Stocks de marchandises",
+    "401": "Dettes Fournisseurs d'exploitation",
+    "411": "Créances Clients / Redevables et usagers",
+    "42/43/44": "Dettes fiscales et sociales (DGI, IPRES, CSS)",
+    "521": "Banque & Mobile Money (Wave, Orange Money)",
+    "571": "Caisse espèces (Reçus cash, carnet de caisse)",
+    "601": "Achats de marchandises",
+    "62/63": "Services extérieurs & charges d'exploitation (Loyer, Transport, Électricité)",
+    "701": "Ventes de marchandises"
+  }
+}
