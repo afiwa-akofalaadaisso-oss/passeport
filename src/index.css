@@ -29,7 +29,7 @@ html, body {
   height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
-  background-color: #07090e !important;
+  background-color: #121215 !important;
   color: #ffffff;
   overflow: hidden;
   position: fixed;
@@ -57,6 +57,7 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
+  background-color: #121215 !important;
 }
 
 button {
@@ -118,7 +119,7 @@ button {
   min-height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
-  background: #07090e;
+  background: #121215;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -136,7 +137,7 @@ button {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  background: #0c0d10;
+  background: #151518;
   border-radius: 32px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.06);
@@ -178,16 +179,24 @@ button {
 }
 
 /* ==========================================================================
-   ADAPTATION POUR TOUS LES SMARTPHONES (iPhone, Android) : 100% PLEIN ÉCRAN
+   ADAPTATION NATIVE POUR TOUS LES SMARTPHONES (iPhone, Android) : 100% PLEIN ÉCRAN
    ========================================================================== */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  html, body, #root, .app-wrapper {
+    background-color: #121215 !important;
+  }
+
   .app-wrapper {
     padding: 0 !important;
     margin: 0 !important;
     width: 100vw !important;
+    height: 100% !important;
     height: 100dvh !important;
+    min-height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
   }
 
   .responsive-app-shell,
@@ -204,8 +213,8 @@ button {
     border: none !important;
     box-shadow: none !important;
     margin: 0 !important;
-    padding-top: env(safe-area-inset-top, 0px) !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+    padding: 0 !important;
+    background: #121215 !important;
   }
 }
 

@@ -518,7 +518,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           1. HEADER ULTRA-ÉPURÉ : ✦ AI Assistant | ··· 🕒 ✕
       ======================================================== */}
       <div style={{
-        padding: '16px 20px 14px',
+        padding: 'calc(14px + env(safe-area-inset-top, 0px)) 20px 14px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -691,8 +691,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         className="clean-scrollbar"
         style={{
           flex: 1,
+          minHeight: 0,
           overflowY: 'auto',
-          padding: '16px 18px 10px',
+          padding: '12px 18px 8px',
           display: 'flex',
           flexDirection: 'column',
           gap: '14px'
@@ -708,9 +709,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            height: '100%',
-            padding: '10px 0 20px',
-            gap: '16px'
+            flex: 1,
+            minHeight: '100%',
+            padding: '8px 0 16px',
+            gap: '14px'
           }}>
             {/* Orbe Holographique 3D Flottante (Asset généré Raycast Style) */}
             <div style={{
@@ -1152,17 +1154,25 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
       </div>
 
       {/* ========================================================
-          3. BARRE D'OUTILS INTERMÉDIAIRE (Exacte réplique de la capture) :
-          [🔍 Find in ⌵]   [✦ AI Assistant ⌵]   [↩]
+          ZONE BASSE ANCRÉE : TOOLBAR + PILULE DE SAISIE
       ======================================================== */}
       <div style={{
-        padding: '6px 16px 8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         flexShrink: 0,
-        gap: '8px'
+        padding: '4px 16px max(14px, env(safe-area-inset-bottom, 14px))',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
+        background: '#151518',
+        zIndex: 20
       }}>
+        {/* 3. BARRE D'OUTILS INTERMÉDIAIRE : [🔍 Find in ⌵] [✦ AI Assistant ⌵] [↩] */}
+        <div style={{
+          padding: '2px 0 0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px'
+        }}>
         {/* Bouton gauche : 🔍 Find in ⌵ */}
         <div style={{ position: 'relative' }}>
           <button
@@ -1307,16 +1317,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         >
           <RotateCcw size={14} />
         </button>
-      </div>
+        </div>
 
-      {/* ========================================================
-          4. BARRE DE SAISIE FLOTTANTE EN PILULE (Exacte réplique de la capture) :
-          ( Ask AI anything...         @  ↑ )
-      ======================================================== */}
-      <div style={{
-        padding: '0 16px 16px',
-        flexShrink: 0
-      }}>
+        {/* 4. BARRE DE SAISIE FLOTTANTE EN PILULE */}
+        <div style={{ width: '100%' }}>
         {/* Prévisualisation des photos sélectionnées */}
         {selectedPhotos.length > 0 && (
           <div style={{
@@ -1438,6 +1442,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           </button>
         </form>
       </div>
+    </div>
 
       {/* ========================================================
           5. TIROIR MÉMOIRE SQLITE DE L'AGENT (Bouton 🕒)
