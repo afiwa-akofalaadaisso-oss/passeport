@@ -39,7 +39,8 @@ import {
   Pin,
   Folder,
   Archive,
-  ThumbsDown
+  ThumbsDown,
+  MessageCircle
 } from 'lucide-react';
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
@@ -762,6 +763,17 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     await refreshMemory();
   };
 
+  // Démarrer une nouvelle discussion (icône 💬 de l'en-tête ChatGPT)
+  const handleNewChat = () => {
+    setMessages([]);
+    setChatSearchQuery('');
+    setShowChatSearch(false);
+    setSelectedPhotos([]);
+    setInputMessage('');
+    setToastMessage('Nouvelle discussion démarrée');
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
   // Reconnaissance vocale par micro (HTML5 Web Speech API)
   const handleToggleMic = () => {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -826,451 +838,302 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     }}>
 
       {/* ========================================================
-          1. HEADER AVEC BOUTON 👑 PRO (Exact screenshot du milieu)
+          1. EN-TÊTE CHATGPT EXACT : [ ☰ ] [ ✦ Mettre à niveau ] [ 💬 ]
       ======================================================== */}
       <div style={{
-        padding: 'calc(14px + env(safe-area-inset-top, 0px)) 18px 12px',
+        padding: 'calc(10px + env(safe-area-inset-top, 0px)) 16px 10px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
         background: 'rgba(21, 21, 24, 0.85)',
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         zIndex: 25,
-        flexShrink: 0
+        flexShrink: 0,
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
       }}>
-        {/* Titre à gauche : Menu ☰ + Mini-orbe bleu + Amadou AI */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            onClick={() => setShowSidebarDrawer(true)}
-            style={{
-              color: 'rgba(255, 255, 255, 0.85)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '4px',
-              borderRadius: '8px',
-              background: 'transparent',
-              border: 'none',
-              transition: 'background 0.2s',
-              marginRight: '2px'
-            }}
-            title="Menu latéral & Historique (Style ChatGPT)"
-          >
-            <Menu size={22} />
-          </button>
-
-          <img
-            src="/blue_aurora_orb.jpg"
-            alt="Amadou AI"
-            style={{
-              width: '26px',
-              height: '26px',
-              borderRadius: '50%',
-              objectFit: 'cover',
-              border: '1.5px solid rgba(0, 112, 243, 0.5)',
-              boxShadow: '0 0 10px rgba(0, 112, 243, 0.45)'
-            }}
-          />
-          <span style={{ fontSize: '1rem', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.02em' }}>
-            Amadou AI
-          </span>
-          {backendStatus.online && (
-            <span style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              background: '#22c55e',
-              boxShadow: '0 0 8px #22c55e',
-              marginLeft: '2px'
-            }} title="Connecté à LangGraph" />
-          )}
-        </div>
-
-        {/* Contrôles à droite : [👑 Pro] | 🕒 (Mémoire) | ··· | ✕ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
-          {/* Bouton 👑 Pro (exact screenshot du milieu !) */}
-          <button
-            onClick={() => setCurrentView('premium')}
-            style={{
-              background: 'linear-gradient(90deg, #0070f3 0%, #2563eb 100%)',
-              border: 'none',
-              borderRadius: '9999px',
-              padding: '5px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              color: '#ffffff',
-              fontSize: '0.74rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              boxShadow: '0 2px 10px rgba(0, 112, 243, 0.45)',
-              transition: 'transform 0.15s'
-            }}
-            title="Ouvrir l'écran Premium Pro"
-          >
-            <Crown size={12} color="#eab308" />
-            <span>Pro</span>
-          </button>
-
-          {/* Bouton Horloge 🕒 : Ouvre la base de données SQLite de mémoire */}
-          <button
-            onClick={() => { setShowMemoryDrawer(true); refreshMemory(); }}
-            style={{ 
-              color: memoryFacts.length > 0 ? '#38bdf8' : 'rgba(255, 255, 255, 0.6)', 
-              cursor: 'pointer', 
-              display: 'flex', 
-              alignItems: 'center',
-              position: 'relative'
-            }}
-            title="Base de données & Mémoire de l'Agent"
-          >
-            <Clock size={17} />
-            {memoryFacts.length > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '-5px',
-                right: '-6px',
-                background: '#0284c7',
-                color: '#ffffff',
-                fontSize: '0.58rem',
-                fontWeight: '900',
-                width: '14px',
-                height: '14px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                {memoryFacts.length}
-              </span>
-            )}
-          </button>
-
-          {/* Menu Options ··· */}
-          <button
-            onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-            style={{ color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            title="Options"
-          >
-            <MoreHorizontal size={18} />
-          </button>
-
-          {/* Bouton Fermer / Retour ✕ */}
-          <button
-            onClick={onBack}
-            style={{ color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            title="Fermer"
-          >
-            <X size={18} />
-          </button>
-
-          {/* Dropdown Options Contextuel (Style exact de la capture d'écran ChatGPT) */}
-          {showOptionsMenu && (
-            <>
-              {/* Backdrop pour fermer en cliquant à l'extérieur */}
-              <div 
-                onClick={() => setShowOptionsMenu(false)} 
-                style={{ position: 'fixed', inset: 0, zIndex: 55 }} 
-              />
-
-              <div style={{
-                position: 'absolute',
-                right: 0,
-                top: '36px',
-                background: '#212126',
-                border: '1px solid rgba(255, 255, 255, 0.14)',
-                borderRadius: '24px',
-                padding: '8px 6px 10px',
-                width: '240px',
-                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2)',
-                zIndex: 60,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '2px',
-                animation: 'fadeIn 0.15s ease forwards'
-              }}>
-                {/* En-tête / Titre de la conversation (Style exact de la capture : API Anthropic expliquée) */}
-                <div style={{
-                  fontSize: '0.78rem',
-                  fontWeight: '600',
-                  color: '#94a3b8',
-                  textAlign: 'center',
-                  padding: '8px 12px 10px',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                  marginBottom: '4px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}>
-                  {currentProject || 'Dossier PME · Wave & SYSCOHADA'}
-                </div>
-
-                {/* 1. Partager */}
-                <button
-                  onClick={() => handleShareChat()}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Share2 size={18} color="rgba(255, 255, 255, 0.85)" />
-                  <span>Partager</span>
-                </button>
-
-                {/* 2. Épingler */}
-                <button
-                  onClick={handleTogglePin}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: isPinned ? '#38bdf8' : '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Pin size={18} color={isPinned ? '#38bdf8' : 'rgba(255, 255, 255, 0.85)'} />
-                  <span>{isPinned ? 'Désépingler' : 'Épingler'}</span>
-                </button>
-
-                {/* 3. Ajouter au projet > */}
-                <button
-                  onClick={() => { setShowOptionsMenu(false); setShowProjectModal(true); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Folder size={18} color="rgba(255, 255, 255, 0.85)" />
-                  <span style={{ flex: 1 }}>Ajouter au projet</span>
-                  <ChevronRight size={16} color="rgba(255, 255, 255, 0.45)" />
-                </button>
-
-                {/* 4. Fichiers envoyés */}
-                <button
-                  onClick={() => { setShowOptionsMenu(false); setShowSentFilesModal(true); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Paperclip size={18} color="rgba(255, 255, 255, 0.85)" />
-                  <span>Fichiers envoyés</span>
-                </button>
-
-                {/* 5. Rechercher dans le chat */}
-                <button
-                  onClick={() => { setShowOptionsMenu(false); setShowChatSearch(true); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Search size={18} color="rgba(255, 255, 255, 0.85)" />
-                  <span>Rechercher dans le chat</span>
-                </button>
-
-                {/* 6. Archiver */}
-                <button
-                  onClick={handleArchiveChat}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.88rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Archive size={18} color="rgba(255, 255, 255, 0.85)" />
-                  <span>Archiver</span>
-                </button>
-
-                {/* Séparateur */}
-                <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.08)', margin: '4px 6px' }} />
-
-                {/* 7. Supprimer (Style exact en rouge avec corbeille rouge) */}
-                <button
-                  onClick={() => { setShowOptionsMenu(false); handleResetAll(); }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    borderRadius: '12px',
-                    padding: '9px 12px',
-                    color: '#ef4444',
-                    fontSize: '0.88rem',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Trash2 size={18} color="#ef4444" />
-                  <span>Supprimer</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* ========================================================
-          SÉLECTEUR RAPIDE 3 ÉCRANS : [ 👑 Premium ] [ ✦ Chat AI ] [ 🎙 Voix ]
-      ======================================================== */}
-      <div style={{
-        padding: '0 16px 8px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '6px',
-        background: 'rgba(21, 21, 24, 0.85)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-        flexShrink: 0
-      }}>
+        {/* Bouton gauche : Menu ☰ */}
         <button
+          type="button"
+          onClick={() => setShowSidebarDrawer(true)}
+          style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            cursor: 'pointer',
+            transition: 'background 0.15s'
+          }}
+          title="Menu latéral"
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+        >
+          <Menu size={20} strokeWidth={2.2} />
+        </button>
+
+        {/* Bouton central : Pilule blanche [ ✦ Mettre à niveau ] */}
+        <button
+          type="button"
           onClick={() => setCurrentView('premium')}
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '9999px',
-            padding: '5px 12px',
-            color: 'rgba(255, 255, 255, 0.65)',
-            fontSize: '0.72rem',
-            fontWeight: '600',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.65)'}
-        >
-          <Crown size={12} color="#eab308" />
-          <span>Écran Pro</span>
-        </button>
-
-        <button
-          onClick={() => setCurrentView('chat')}
-          style={{
-            background: 'rgba(0, 112, 243, 0.2)',
-            border: '1px solid #0070f3',
+            gap: '8px',
+            background: '#ffffff',
+            border: 'none',
             borderRadius: '9999px',
-            padding: '5px 14px',
-            color: '#ffffff',
-            fontSize: '0.72rem',
+            padding: '7px 18px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.25)',
+            transition: 'transform 0.15s, opacity 0.15s'
+          }}
+          title="Mettre à niveau"
+          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.92'}
+          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+        >
+          {/* Losange bleu avec étoile blanche */}
+          <div style={{
+            width: '18px',
+            height: '18px',
+            borderRadius: '5px',
+            background: 'linear-gradient(135deg, #0070f3 0%, #0284c7 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Sparkles size={11} color="#ffffff" fill="#ffffff" />
+          </div>
+          <span style={{
+            color: '#0070f3',
+            fontSize: '0.86rem',
             fontWeight: '700',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px',
-            cursor: 'pointer',
-            boxShadow: '0 0 10px rgba(0, 112, 243, 0.4)'
-          }}
-        >
-          <Sparkles size={12} color="#38bdf8" />
-          <span>Chat AI</span>
+            letterSpacing: '-0.01em'
+          }}>
+            Mettre à niveau
+          </span>
         </button>
 
+        {/* Bouton droit : Nouvelle discussion 💬 */}
         <button
-          onClick={() => setCurrentView('voice')}
+          type="button"
+          onClick={handleNewChat}
           style={{
-            background: 'rgba(255, 255, 255, 0.04)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: '9999px',
-            padding: '5px 12px',
-            color: 'rgba(255, 255, 255, 0.65)',
-            fontSize: '0.72rem',
-            fontWeight: '600',
+            width: '38px',
+            height: '38px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.06)',
+            border: 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
+            justifyContent: 'center',
+            color: '#ffffff',
             cursor: 'pointer',
-            transition: 'all 0.2s'
+            transition: 'background 0.15s'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
-          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.65)'}
+          title="Nouvelle discussion"
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
         >
-          <Volume2 size={12} color="#38bdf8" />
-          <span>Écran Voix</span>
+          <MessageCircle size={20} strokeWidth={2.1} />
         </button>
       </div>
+
+      {/* Dropdown Options Contextuel (ouvrable depuis les actions de message ···) */}
+      {showOptionsMenu && (
+        <>
+          <div 
+            onClick={() => setShowOptionsMenu(false)} 
+            style={{ position: 'fixed', inset: 0, zIndex: 55 }} 
+          />
+          <div style={{
+            position: 'absolute',
+            right: '16px',
+            top: '56px',
+            background: '#212126',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            borderRadius: '24px',
+            padding: '8px 6px 10px',
+            width: '240px',
+            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2)',
+            zIndex: 60,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '2px',
+            animation: 'fadeIn 0.15s ease forwards'
+          }}>
+            <div style={{
+              fontSize: '0.78rem',
+              fontWeight: '600',
+              color: '#94a3b8',
+              textAlign: 'center',
+              padding: '8px 12px 10px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+              marginBottom: '4px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {currentProject || 'Dossier PME · Wave & SYSCOHADA'}
+            </div>
+
+            <button
+              onClick={() => handleShareChat()}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Share2 size={18} color="rgba(255, 255, 255, 0.85)" />
+              <span>Partager</span>
+            </button>
+
+            <button
+              onClick={handleTogglePin}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: isPinned ? '#38bdf8' : '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Pin size={18} color={isPinned ? '#38bdf8' : 'rgba(255, 255, 255, 0.85)'} />
+              <span>{isPinned ? 'Désépingler' : 'Épingler'}</span>
+            </button>
+
+            <button
+              onClick={() => { setShowOptionsMenu(false); setShowProjectModal(true); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Folder size={18} color="rgba(255, 255, 255, 0.85)" />
+              <span style={{ flex: 1 }}>Ajouter au projet</span>
+              <ChevronRight size={16} color="rgba(255, 255, 255, 0.45)" />
+            </button>
+
+            <button
+              onClick={() => { setShowOptionsMenu(false); setShowSentFilesModal(true); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Paperclip size={18} color="rgba(255, 255, 255, 0.85)" />
+              <span>Fichiers envoyés</span>
+            </button>
+
+            <button
+              onClick={() => { setShowOptionsMenu(false); setShowChatSearch(true); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Search size={18} color="rgba(255, 255, 255, 0.85)" />
+              <span>Rechercher dans le chat</span>
+            </button>
+
+            <button
+              onClick={handleArchiveChat}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ffffff',
+                fontSize: '0.88rem',
+                fontWeight: '500',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Archive size={18} color="rgba(255, 255, 255, 0.85)" />
+              <span>Archiver</span>
+            </button>
+
+            <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.08)', margin: '4px 6px' }} />
+
+            <button
+              onClick={() => { setShowOptionsMenu(false); handleResetAll(); }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '9px 12px',
+                color: '#ef4444',
+                fontSize: '0.88rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <Trash2 size={18} color="#ef4444" />
+              <span>Supprimer</span>
+            </button>
+          </div>
+        </>
+      )}
 
       {/* ========================================================
           2. ZONE PRINCIPALE : HERO VISUAL OU CONVERSATION
