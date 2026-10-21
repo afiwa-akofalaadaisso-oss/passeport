@@ -24,7 +24,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copie du backend
 COPY backend/app ./app
-COPY backend/.env ./
 
 # Copie du frontend compilé depuis l'étape 1
 COPY --from=frontend-builder /app/dist ./dist
