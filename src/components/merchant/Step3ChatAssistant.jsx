@@ -40,7 +40,10 @@ import {
   Folder,
   Archive,
   ThumbsDown,
-  MessageCircle
+  MessageCircle,
+  Send,
+  ArrowLeft,
+  User
 } from 'lucide-react';
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
@@ -60,6 +63,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   const isOrange = operatorData?.operator === 'orange';
   const operatorName = isOrange ? 'Orange Money' : 'Wave';
   const brandColor = isOrange ? '#ff7900' : '#22b8ed';
+  const merchantDisplayName = currentUser?.name || currentUser?.full_name || operatorData?.merchant_name || 'Barry';
 
   // Identifiant persistant du commerçant dans le navigateur pour la mémoire SQLite
   const [merchantId] = useState(() => {
@@ -691,9 +695,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   };
 
   // Envoi de message libre vers l'agent (Conversation directe avec LangGraph & Claude 3.5 Sonnet)
-  const handleSendMessage = async (e) => {
-    e?.preventDefault();
-    const text = inputMessage.trim();
+  const handleSendMessage = async (e, customText = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const text = (customText !== null ? customText : inputMessage).trim();
     const currentPhotos = [...selectedPhotos];
     if (!text && currentPhotos.length === 0) return;
 
@@ -744,6 +748,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
       }]);
     }
+  };
+
+  const handleSendSuggestion = (suggestionText) => {
+    handleSendMessage(null, suggestionText);
   };
 
   // Réinitialisation complète (avec confirmation de remise à zéro de la mémoire SQLite)
@@ -822,10 +830,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     );
   }
 
-  // 3. VUE ÉCRAN CENTRAL : INTERFACE CHAT AI AMADOU
+  // 3. VUE ÉCRAN CENTRAL : INTERFACE CHAT AI AMADOU (THÈME SOLAR ECLIPSE)
   return (
     <div className="responsive-app-shell" style={{
-      background: '#151518',
+      background: 'radial-gradient(circle at 50% 28%, rgba(255, 122, 0, 0.14) 0%, rgba(18, 11, 7, 0.98) 55%, #080504 100%)',
       height: '100dvh',
       minHeight: '100dvh',
       maxHeight: '100dvh',
@@ -838,110 +846,99 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     }}>
 
       {/* ========================================================
-          1. EN-TÊTE CHATGPT EXACT : [ ☰ ] [ ✦ Mettre à niveau ] [ 💬 ]
+          1. EN-TÊTE SOLAR ECLIPSE : [ ← ] et [ 👑 Get Plus ]
       ======================================================== */}
       <div style={{
         padding: 'calc(10px + env(safe-area-inset-top, 0px)) 16px 10px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(21, 21, 24, 0.85)',
+        background: 'rgba(14, 9, 6, 0.85)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         zIndex: 25,
         flexShrink: 0,
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)'
+        borderBottom: '1px solid rgba(255, 140, 0, 0.12)'
       }}>
-        {/* Bouton gauche : Menu ☰ */}
+        {/* Bouton gauche : Retour (←) ou Menu */}
         <button
           type="button"
-          onClick={() => setShowSidebarDrawer(true)}
+          onClick={onBack ? onBack : () => setShowSidebarDrawer(true)}
           style={{
-            width: '38px',
-            height: '38px',
+            width: '40px',
+            height: '40px',
             borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.06)',
-            border: 'none',
+            background: 'rgba(255, 255, 255, 0.07)',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: '#ffffff',
             cursor: 'pointer',
-            transition: 'background 0.15s'
+            transition: 'background 0.15s, transform 0.15s'
           }}
-          title="Menu latéral"
-          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+          title="Retour / Menu"
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)'}
         >
-          <Menu size={20} strokeWidth={2.2} />
+          <ArrowLeft size={19} strokeWidth={2.4} />
         </button>
 
-        {/* Bouton central : Pilule blanche [ ✦ Mettre à niveau ] */}
-        <button
-          type="button"
-          onClick={() => setCurrentView('premium')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#ffffff',
-            border: 'none',
-            borderRadius: '9999px',
-            padding: '7px 18px',
-            cursor: 'pointer',
-            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.25)',
-            transition: 'transform 0.15s, opacity 0.15s'
-          }}
-          title="Mettre à niveau"
-          onMouseEnter={(e) => e.currentTarget.style.opacity = '0.92'}
-          onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
-        >
-          {/* Losange bleu avec étoile blanche */}
-          <div style={{
-            width: '18px',
-            height: '18px',
-            borderRadius: '5px',
-            background: 'linear-gradient(135deg, #0070f3 0%, #0284c7 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <Sparkles size={11} color="#ffffff" fill="#ffffff" />
-          </div>
-          <span style={{
-            color: '#0070f3',
-            fontSize: '0.86rem',
-            fontWeight: '700',
-            letterSpacing: '-0.01em'
-          }}>
-            Mettre à niveau
-          </span>
-        </button>
+        {/* Boutons droite : [ 👑 Get Plus ] & [ 💬 ] */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={() => setCurrentView('premium')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '7px',
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '7px 16px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(249, 115, 22, 0.45)',
+              transition: 'transform 0.15s, opacity 0.15s'
+            }}
+            title="Get Plus"
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <Crown size={14} color="#ffffff" fill="#ffffff" />
+            <span style={{
+              color: '#ffffff',
+              fontSize: '0.86rem',
+              fontWeight: '700',
+              letterSpacing: '-0.01em'
+            }}>
+              Get Plus
+            </span>
+          </button>
 
-        {/* Bouton droit : Nouvelle discussion 💬 */}
-        <button
-          type="button"
-          onClick={handleNewChat}
-          style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.06)',
-            border: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#ffffff',
-            cursor: 'pointer',
-            transition: 'background 0.15s'
-          }}
-          title="Nouvelle discussion"
-          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)'}
-          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
-        >
-          <MessageCircle size={20} strokeWidth={2.1} />
-        </button>
+          <button
+            type="button"
+            onClick={handleNewChat}
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.07)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              cursor: 'pointer',
+              transition: 'background 0.15s'
+            }}
+            title="Nouvelle discussion"
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)'}
+          >
+            <MessageCircle size={18} strokeWidth={2.1} />
+          </button>
+        </div>
       </div>
 
       {/* Dropdown Options Contextuel (ouvrable depuis les actions de message ···) */}
@@ -1204,8 +1201,8 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         )}
 
         {/* ======================================================
-            ÉTAT INITIAL (Style exact capture d'écran)
-            Orbe holographique + Hello there, human! + Cartes d'action
+            ÉTAT INITIAL SOLAR ECLIPSE (Style exact capture d'écran)
+            Badge Marchand + Orbe Éclipse Solaire + How can i assist you today? + Pilules
         ====================================================== */}
         {messages.length === 0 && (
           <div style={{
@@ -1215,55 +1212,255 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             justifyContent: 'center',
             flex: 1,
             margin: 'auto 0',
-            padding: '8px 0 16px',
+            padding: '12px 16px 20px',
             gap: '14px',
-            width: '100%'
+            width: '100%',
+            boxSizing: 'border-box'
           }}>
-            {/* Orbe Bleu Lumineux Vortex (Style exact du screenshot du milieu) */}
+            {/* 1. Badge Marchand "Hello Barry" style screenshot */}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 16px',
+              borderRadius: '9999px',
+              background: 'rgba(32, 20, 14, 0.88)',
+              border: '1px solid rgba(255, 140, 0, 0.35)',
+              boxShadow: '0 2px 12px rgba(0, 0, 0, 0.4)',
+              color: '#fed7aa',
+              fontSize: '0.86rem',
+              fontWeight: '600'
+            }}>
+              <div style={{
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                background: 'rgba(255, 140, 0, 0.22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <User size={12} color="#fb923c" />
+              </div>
+              <span>Hello {merchantDisplayName}</span>
+            </div>
+
+            {/* 2. Orbe Éclipse Solaire Flamboyante avec pulsation corona */}
             <div style={{
               position: 'relative',
-              width: '140px',
-              height: '140px',
+              width: '180px',
+              height: '180px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: '8px'
+              margin: '2px 0'
             }}>
               <img
-                src="/blue_aurora_orb.jpg"
-                alt="Blue Aurora Orb"
-                className="blue-orb-animated"
+                src="/solar_eclipse_orb.jpg"
+                alt="Solar Eclipse Corona Orb"
+                className="solar-orb-animated"
                 style={{
-                  width: '132px',
-                  height: '132px',
+                  width: '168px',
+                  height: '168px',
                   borderRadius: '50%',
                   objectFit: 'cover',
                   display: 'block',
-                  boxShadow: '0 0 35px rgba(0, 112, 243, 0.55), 0 0 70px rgba(0, 112, 243, 0.25)',
-                  border: '1.5px solid rgba(0, 112, 243, 0.45)'
+                  boxShadow: '0 0 50px rgba(255, 122, 0, 0.65), 0 0 95px rgba(255, 100, 0, 0.28)',
+                  border: '2px solid rgba(255, 160, 50, 0.45)'
                 }}
               />
             </div>
 
-            {/* Titre et Sous-titre style exact de la capture d'écran */}
-            <div style={{ textAlign: 'center', marginTop: '2px' }}>
+            {/* 3. Titre éclatant style exact screenshot : How can i assist you today? */}
+            <div style={{ textAlign: 'center' }}>
               <h2 style={{
                 margin: 0,
                 fontSize: '1.45rem',
                 fontWeight: '800',
-                color: '#ffffff',
-                letterSpacing: '-0.02em'
+                background: 'linear-gradient(135deg, #ffedd5 0%, #fb923c 60%, #ea580c 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                letterSpacing: '-0.02em',
+                lineHeight: 1.25
               }}>
-                Hello I'm Amadou
+                How can i assist you today?
               </h2>
-              <p style={{
-                margin: '4px 0 0',
-                fontSize: '0.84rem',
-                fontWeight: '500',
-                color: 'rgba(255, 255, 255, 0.55)'
+            </div>
+
+            {/* 4. Suggestions en pilules décalées (2 rangées interactives style screenshot) */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              width: '100%',
+              maxWidth: '380px',
+              marginTop: '4px'
+            }}>
+              {/* Rangée 1 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '8px',
+                flexWrap: 'wrap'
               }}>
-                Your AI digital financial partner
-              </p>
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Auditer mes relevés de flux Wave et Orange Money des 12 derniers mois")}
+                  style={{
+                    background: 'rgba(25, 18, 14, 0.85)',
+                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    borderRadius: '9999px',
+                    padding: '8px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    color: '#f3f4f6',
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
+                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                  }}
+                >
+                  <FileSpreadsheet size={14} color="#fb923c" />
+                  <span>Flux Wave & OM</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Analyser les entrées et sorties de mon carnet de caisse manuscrit")}
+                  style={{
+                    background: 'rgba(25, 18, 14, 0.85)',
+                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    borderRadius: '9999px',
+                    padding: '8px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    color: '#f3f4f6',
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
+                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                  }}
+                >
+                  <BookOpen size={14} color="#fb923c" />
+                  <span>Carnet de caisse</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Vérifier la conformité de mon NINEA et RCCM au Sénégal")}
+                  style={{
+                    background: 'rgba(25, 18, 14, 0.85)',
+                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    borderRadius: '9999px',
+                    padding: '8px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    color: '#f3f4f6',
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
+                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                  }}
+                >
+                  <Building2 size={14} color="#fb923c" />
+                  <span>NINEA & RCCM</span>
+                </button>
+              </div>
+
+              {/* Rangée 2 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '8px',
+                flexWrap: 'wrap'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Générer mon bilan comptable officiel SYSCOHADA SMT certifié")}
+                  style={{
+                    background: 'rgba(25, 18, 14, 0.85)',
+                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    borderRadius: '9999px',
+                    padding: '8px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    color: '#f3f4f6',
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
+                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                  }}
+                >
+                  <ShieldCheck size={14} color="#fb923c" />
+                  <span>Bilan SYSCOHADA</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Calculer mon ratio de couverture DSCR et ma capacité d'emprunt bancaire")}
+                  style={{
+                    background: 'rgba(25, 18, 14, 0.85)',
+                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    borderRadius: '9999px',
+                    padding: '8px 14px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    color: '#f3f4f6',
+                    fontSize: '0.8rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
+                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                  }}
+                >
+                  <Target size={14} color="#fb923c" />
+                  <span>Score DSCR</span>
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1959,7 +2156,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
       </div>
 
       {/* ========================================================
-          ZONE BASSE ANCRÉE : TOOLBAR + PILULE DE SAISIE
+          ZONE BASSE ANCRÉE : CARTE DE SAISIE SOLAR ECLIPSE
       ======================================================== */}
       <div style={{
         flexShrink: 0,
@@ -1967,12 +2164,11 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         display: 'flex',
         flexDirection: 'column',
         gap: '6px',
-        background: '#151518',
+        background: 'linear-gradient(to top, #080504 80%, rgba(8, 5, 4, 0.8) 100%)',
         zIndex: 20,
         width: '100%',
         boxSizing: 'border-box'
       }}>
-
 
         {/* 1. Prévisualisation des photos sélectionnées */}
         {selectedPhotos.length > 0 && (
@@ -1992,10 +2188,11 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                     height: '38px',
                     borderRadius: '8px',
                     objectFit: 'cover',
-                    border: '1.5px solid #0070f3'
+                    border: '1.5px solid #f97316'
                   }}
                 />
                 <button
+                  type="button"
                   onClick={() => handleRemovePhoto(i)}
                   style={{
                     position: 'absolute',
@@ -2008,7 +2205,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    border: 'none',
+                    cursor: 'pointer'
                   }}
                 >
                   <X size={10} />
@@ -2018,19 +2217,21 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           </div>
         )}
 
-        {/* 2. CHAMP DE SAISIE EN PILULE UNIQUE STYLE CHATGPT (Capture exacte : (+) Demander à ChatGPT (🎙️) (🔵|||)) */}
+        {/* 2. CHAMP DE SAISIE EN CARTE STYLE SOLAR ECLIPSE (Capture exacte : Loupe + Input au-dessus, (+) (🎙️) et Bouton Orange Envoyer ✈️ en dessous) */}
         <form
           onSubmit={handleSendMessage}
           style={{
             display: 'flex',
-            alignItems: 'center',
-            background: '#202024',
-            border: `1.5px solid ${inputFocused ? '#0070f3' : 'rgba(255, 255, 255, 0.1)'}`,
-            boxShadow: inputFocused ? '0 0 20px rgba(0, 112, 243, 0.45)' : '0 4px 16px rgba(0,0,0,0.35)',
-            borderRadius: '9999px',
-            padding: '5px 6px 5px 8px',
-            gap: '8px',
-            transition: 'all 0.2s',
+            flexDirection: 'column',
+            gap: '10px',
+            background: 'rgba(24, 16, 12, 0.95)',
+            border: `1.5px solid ${inputFocused ? '#f97316' : 'rgba(255, 140, 0, 0.32)'}`,
+            boxShadow: inputFocused 
+              ? '0 0 24px rgba(249, 115, 22, 0.35), 0 8px 30px rgba(0, 0, 0, 0.6)' 
+              : '0 0 16px rgba(255, 120, 0, 0.12), 0 8px 30px rgba(0, 0, 0, 0.55)',
+            borderRadius: '24px',
+            padding: '12px 14px 10px',
+            transition: 'all 0.25s ease',
             width: '100%',
             boxSizing: 'border-box'
           }}
@@ -2044,124 +2245,117 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             style={{ display: 'none' }}
           />
 
-          {/* Bouton (+) intégré à gauche à l'intérieur de la pilule (style exact de la capture) */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'rgba(255, 255, 255, 0.9)',
-              cursor: 'pointer',
-              flexShrink: 0,
-              transition: 'background 0.15s'
-            }}
-            title="Ajouter des pièces justificatives (+)"
-            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
-          >
-            <Plus size={18} strokeWidth={2.4} />
-          </button>
+          {/* Ligne Supérieure : Loupe 🔍 + Champ de saisie "Type here you want to know....." */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            width: '100%'
+          }}>
+            <Search size={17} color="rgba(255, 200, 160, 0.5)" style={{ flexShrink: 0 }} />
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+              placeholder="Type here you want to know....."
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontSize: '0.94rem',
+                outline: 'none',
+                padding: '2px 0',
+                letterSpacing: '-0.01em'
+              }}
+            />
+          </div>
 
-          {/* Saisie textuelle avec placeholder fidèle à la capture : Demander à ChatGPT */}
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onFocus={() => setInputFocused(true)}
-            onBlur={() => setInputFocused(false)}
-            placeholder="Demander à ChatGPT..."
-            style={{
-              flex: 1,
-              background: 'transparent',
-              border: 'none',
-              color: '#ffffff',
-              fontSize: '0.92rem',
-              outline: 'none',
-              padding: '0 4px'
-            }}
-          />
+          {/* Ligne Inférieure : Actions (+) (🎙️) à gauche et Bouton Orange Circulaire Envoyer (✈️) à droite */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            paddingTop: '2px'
+          }}>
+            {/* Outils secondaires gauche : (+) et (🎙️) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Bouton (+) Pièces justificatives */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.07)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  cursor: 'pointer',
+                  transition: 'background 0.15s, transform 0.15s'
+                }}
+                title="Ajouter des pièces justificatives (+)"
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)'}
+              >
+                <Plus size={18} strokeWidth={2.4} />
+              </button>
 
-          {/* Bouton Micro 🎙️ (style exact de la capture) */}
-          <button
-            type="button"
-            onClick={handleToggleMic}
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: isListeningMic ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-              border: isListeningMic ? '1px solid #ef4444' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.75)',
-              cursor: 'pointer',
-              flexShrink: 0,
-              transition: 'all 0.15s'
-            }}
-            title={isListeningMic ? "Écoute en cours..." : "Dictée vocale"}
-          >
-            <Mic size={18} />
-          </button>
+              {/* Bouton Micro (🎙️) Dictée vocale */}
+              <button
+                type="button"
+                onClick={handleToggleMic}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: isListeningMic ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255, 255, 255, 0.07)',
+                  border: isListeningMic ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.85)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s'
+                }}
+                title={isListeningMic ? "Écoute en cours..." : "Dictée vocale"}
+              >
+                <Mic size={17} />
+              </button>
+            </div>
 
-          {/* Bouton Vocal Bleu avec Ondes Sonores (🔵 |||||) ou Envoi ↑ si texte saisi */}
-          {inputMessage.trim() ? (
+            {/* Bouton Orange Flamboyant Envoyer (✈️) circulaire style screenshot */}
             <button
               type="submit"
+              disabled={isTyping}
               style={{
-                width: '34px',
-                height: '34px',
+                width: '42px',
+                height: '42px',
                 borderRadius: '50%',
-                background: '#0070f3',
-                color: '#ffffff',
-                border: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                flexShrink: 0,
-                boxShadow: '0 2px 10px rgba(0, 112, 243, 0.5)'
-              }}
-              title="Envoyer"
-            >
-              <ArrowUp size={17} strokeWidth={2.5} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCurrentView('voice')}
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0070f3 0%, #2563eb 100%)',
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ffffff',
-                cursor: 'pointer',
-                flexShrink: 0,
-                boxShadow: '0 2px 12px rgba(0, 112, 243, 0.55)'
+                cursor: isTyping ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 18px rgba(249, 115, 22, 0.55)',
+                transition: 'transform 0.15s, opacity 0.15s',
+                opacity: isTyping ? 0.6 : 1
               }}
-              title="Assistant Vocal Amadou (Écran Voix)"
+              title="Envoyer le message"
+              onMouseEnter={(e) => { if (!isTyping) e.currentTarget.style.transform = 'scale(1.05)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              {/* Onde vocale style ChatGPT */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '14px' }}>
-                <span style={{ width: '2px', height: '6px', background: '#ffffff', borderRadius: '1px' }} />
-                <span style={{ width: '2px', height: '14px', background: '#ffffff', borderRadius: '1px' }} />
-                <span style={{ width: '2px', height: '9px', background: '#ffffff', borderRadius: '1px' }} />
-                <span style={{ width: '2px', height: '5px', background: '#ffffff', borderRadius: '1px' }} />
-              </div>
+              <Send size={18} color="#ffffff" style={{ transform: 'translateX(1px)' }} />
             </button>
-          )}
+          </div>
         </form>
       </div>
 
