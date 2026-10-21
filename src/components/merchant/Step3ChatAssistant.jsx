@@ -43,7 +43,10 @@ import {
   MessageCircle,
   Send,
   ArrowLeft,
-  User
+  User,
+  Briefcase,
+  Camera,
+  Edit3
 } from 'lucide-react';
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
@@ -1286,242 +1289,6 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 How can i assist you today?
               </h2>
             </div>
-
-            {/* 4. Suggestions en pilules décalées (2 rangées interactives style screenshot) */}
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px',
-              width: '100%',
-              maxWidth: '420px',
-              marginTop: '6px'
-            }}>
-              {/* Rangée 1 */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '8px',
-                flexWrap: 'wrap'
-              }}>
-                <button
-                  type="button"
-                  onClick={() => handleSendSuggestion("Auditer mes relevés de flux Wave et Orange Money des 12 derniers mois")}
-                  style={{
-                    background: 'rgba(28, 20, 15, 0.92)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '9999px',
-                    padding: '6px 14px 6px 8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#f3f4f6',
-                    fontSize: '0.82rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <FileSpreadsheet size={13} color="#fb923c" />
-                  </div>
-                  <span>Flux Wave & OM</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSendSuggestion("Analyser les entrées et sorties de mon carnet de caisse manuscrit")}
-                  style={{
-                    background: 'rgba(28, 20, 15, 0.92)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '9999px',
-                    padding: '6px 14px 6px 8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#f3f4f6',
-                    fontSize: '0.82rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <BookOpen size={13} color="#fb923c" />
-                  </div>
-                  <span>Carnet de caisse</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSendSuggestion("Vérifier la conformité de mon NINEA et RCCM au Sénégal")}
-                  style={{
-                    background: 'rgba(28, 20, 15, 0.92)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '9999px',
-                    padding: '6px 14px 6px 8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#f3f4f6',
-                    fontSize: '0.82rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <Building2 size={13} color="#fb923c" />
-                  </div>
-                  <span>NINEA & RCCM</span>
-                </button>
-              </div>
-
-              {/* Rangée 2 */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '8px',
-                flexWrap: 'wrap'
-              }}>
-                <button
-                  type="button"
-                  onClick={() => handleSendSuggestion("Générer mon bilan comptable officiel SYSCOHADA SMT certifié")}
-                  style={{
-                    background: 'rgba(28, 20, 15, 0.92)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '9999px',
-                    padding: '6px 14px 6px 8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#f3f4f6',
-                    fontSize: '0.82rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <ShieldCheck size={13} color="#fb923c" />
-                  </div>
-                  <span>Bilan SYSCOHADA</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleSendSuggestion("Calculer mon ratio de couverture DSCR et ma capacité d'emprunt bancaire")}
-                  style={{
-                    background: 'rgba(28, 20, 15, 0.92)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    borderRadius: '9999px',
-                    padding: '6px 14px 6px 8px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    color: '#f3f4f6',
-                    fontSize: '0.82rem',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
-                  }}
-                >
-                  <div style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <Target size={13} color="#fb923c" />
-                  </div>
-                  <span>Score DSCR</span>
-                </button>
-              </div>
-            </div>
           </div>
         )}
 
@@ -2274,6 +2041,418 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ========================================================
+            PILULES DE SUGGESTIONS EN QUINCONCE (STAGGERED HORIZONTAL)
+            Positionnées exactement au-dessus de la carte de saisie
+        ======================================================== */}
+        {messages.length === 0 && (
+          <div style={{
+            width: 'calc(100% + 32px)',
+            margin: '0 -16px 4px -16px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            paddingBottom: '2px'
+          }}>
+            {/* Rangée 1 : Décalée vers la gauche pour saigner sur les bords */}
+            <div 
+              className="no-scrollbar"
+              style={{
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                paddingLeft: '8px',
+                paddingRight: '8px',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                transform: 'translateX(-38px)',
+                minWidth: 'max-content'
+              }}>
+                {/* Pilule 1 (tronquée sur le bord gauche comme '...ange') */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Analyser la transition et la rentabilité de mon activité commerciale")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Briefcase size={12} color="#ffffff" />
+                  </div>
+                  <span>Career change</span>
+                </button>
+
+                {/* Pilule 2 (Resume writing avec icône document) */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Rédiger la synthèse certifiée de mon activité et profil commerçant")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <FileSpreadsheet size={12} color="#ffffff" />
+                  </div>
+                  <span>Resume writing</span>
+                </button>
+
+                {/* Pilule 3 (Career change avec icône) */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Auditer l'évolution de mon modèle économique et flux d'affaires")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Building2 size={12} color="#ffffff" />
+                  </div>
+                  <span>Career change</span>
+                </button>
+
+                {/* Pilule 4 */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Auditer mes relevés de flux Wave et Orange Money des 12 derniers mois")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Sparkles size={12} color="#fb923c" />
+                  </div>
+                  <span>Flux Wave & OM</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Rangée 2 : Décalée en quinconce (staggered) pour le centrage parfait sous l'intervalle */}
+            <div 
+              className="no-scrollbar"
+              style={{
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                paddingLeft: '8px',
+                paddingRight: '8px',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+            >
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                transform: 'translateX(-10px)',
+                minWidth: 'max-content'
+              }}>
+                {/* Pilule 1 (Photo editing tronquée sur le bord gauche) */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Camera size={12} color="#ffffff" />
+                  </div>
+                  <span>Photo editing</span>
+                </button>
+
+                {/* Pilule 2 (Dog Training centré sous l'espace de la ligne 1) */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Calculer mon ratio de solvabilité DSCR et scoring bancaire")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Target size={12} color="#ffffff" />
+                  </div>
+                  <span>Dog Training</span>
+                </button>
+
+                {/* Pilule 3 (Photo editing avec icône crayon) */}
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Edit3 size={12} color="#ffffff" />
+                  </div>
+                  <span>Photo editing</span>
+                </button>
+
+                {/* Pilule 4 */}
+                <button
+                  type="button"
+                  onClick={() => handleSendSuggestion("Générer mon bilan comptable officiel SYSCOHADA SMT certifié")}
+                  style={{
+                    background: 'rgba(28, 20, 15, 0.95)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '9999px',
+                    height: '34px',
+                    padding: '0 14px 0 6px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'rgba(255, 255, 255, 0.92)',
+                    fontSize: '0.82rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.95)';
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <ShieldCheck size={12} color="#fb923c" />
+                  </div>
+                  <span>Bilan SYSCOHADA</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
