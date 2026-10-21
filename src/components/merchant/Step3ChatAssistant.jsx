@@ -1293,8 +1293,8 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               flexDirection: 'column',
               gap: '10px',
               width: '100%',
-              maxWidth: '380px',
-              marginTop: '4px'
+              maxWidth: '420px',
+              marginTop: '6px'
             }}>
               {/* Rangée 1 */}
               <div style={{
@@ -1307,29 +1307,41 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   type="button"
                   onClick={() => handleSendSuggestion("Auditer mes relevés de flux Wave et Orange Money des 12 derniers mois")}
                   style={{
-                    background: 'rgba(25, 18, 14, 0.85)',
-                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    background: 'rgba(28, 20, 15, 0.92)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '9999px',
-                    padding: '8px 14px',
+                    padding: '6px 14px 6px 8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '7px',
+                    gap: '8px',
                     color: '#f3f4f6',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
-                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
                   }}
                 >
-                  <FileSpreadsheet size={14} color="#fb923c" />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <FileSpreadsheet size={13} color="#fb923c" />
+                  </div>
                   <span>Flux Wave & OM</span>
                 </button>
 
@@ -1337,29 +1349,41 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   type="button"
                   onClick={() => handleSendSuggestion("Analyser les entrées et sorties de mon carnet de caisse manuscrit")}
                   style={{
-                    background: 'rgba(25, 18, 14, 0.85)',
-                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    background: 'rgba(28, 20, 15, 0.92)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '9999px',
-                    padding: '8px 14px',
+                    padding: '6px 14px 6px 8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '7px',
+                    gap: '8px',
                     color: '#f3f4f6',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
-                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
                   }}
                 >
-                  <BookOpen size={14} color="#fb923c" />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <BookOpen size={13} color="#fb923c" />
+                  </div>
                   <span>Carnet de caisse</span>
                 </button>
 
@@ -1367,29 +1391,41 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   type="button"
                   onClick={() => handleSendSuggestion("Vérifier la conformité de mon NINEA et RCCM au Sénégal")}
                   style={{
-                    background: 'rgba(25, 18, 14, 0.85)',
-                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    background: 'rgba(28, 20, 15, 0.92)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '9999px',
-                    padding: '8px 14px',
+                    padding: '6px 14px 6px 8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '7px',
+                    gap: '8px',
                     color: '#f3f4f6',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
-                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
                   }}
                 >
-                  <Building2 size={14} color="#fb923c" />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Building2 size={13} color="#fb923c" />
+                  </div>
                   <span>NINEA & RCCM</span>
                 </button>
               </div>
@@ -1405,29 +1441,41 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   type="button"
                   onClick={() => handleSendSuggestion("Générer mon bilan comptable officiel SYSCOHADA SMT certifié")}
                   style={{
-                    background: 'rgba(25, 18, 14, 0.85)',
-                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    background: 'rgba(28, 20, 15, 0.92)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '9999px',
-                    padding: '8px 14px',
+                    padding: '6px 14px 6px 8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '7px',
+                    gap: '8px',
                     color: '#f3f4f6',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
-                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
                   }}
                 >
-                  <ShieldCheck size={14} color="#fb923c" />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <ShieldCheck size={13} color="#fb923c" />
+                  </div>
                   <span>Bilan SYSCOHADA</span>
                 </button>
 
@@ -1435,29 +1483,41 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   type="button"
                   onClick={() => handleSendSuggestion("Calculer mon ratio de couverture DSCR et ma capacité d'emprunt bancaire")}
                   style={{
-                    background: 'rgba(25, 18, 14, 0.85)',
-                    border: '1px solid rgba(255, 140, 0, 0.22)',
+                    background: 'rgba(28, 20, 15, 0.92)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
                     borderRadius: '9999px',
-                    padding: '8px 14px',
+                    padding: '6px 14px 6px 8px',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '7px',
+                    gap: '8px',
                     color: '#f3f4f6',
-                    fontSize: '0.8rem',
+                    fontSize: '0.82rem',
                     fontWeight: '500',
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.6)';
-                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.15)';
+                    e.currentTarget.style.background = 'rgba(255, 140, 0, 0.18)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(255, 140, 0, 0.22)';
-                    e.currentTarget.style.background = 'rgba(25, 18, 14, 0.85)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.background = 'rgba(28, 20, 15, 0.92)';
                   }}
                 >
-                  <Target size={14} color="#fb923c" />
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <Target size={13} color="#fb923c" />
+                  </div>
                   <span>Score DSCR</span>
                 </button>
               </div>
@@ -2223,14 +2283,14 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
-            background: 'rgba(24, 16, 12, 0.95)',
-            border: `1.5px solid ${inputFocused ? '#f97316' : 'rgba(255, 140, 0, 0.32)'}`,
+            gap: '12px',
+            background: '#120b07',
+            border: `1.5px solid ${inputFocused ? '#f97316' : 'rgba(255, 140, 0, 0.42)'}`,
             boxShadow: inputFocused 
-              ? '0 0 24px rgba(249, 115, 22, 0.35), 0 8px 30px rgba(0, 0, 0, 0.6)' 
-              : '0 0 16px rgba(255, 120, 0, 0.12), 0 8px 30px rgba(0, 0, 0, 0.55)',
-            borderRadius: '24px',
-            padding: '12px 14px 10px',
+              ? '0 0 24px rgba(249, 115, 22, 0.38), 0 8px 32px rgba(0, 0, 0, 0.7)' 
+              : '0 -3px 18px rgba(255, 120, 0, 0.2), 0 10px 30px rgba(0, 0, 0, 0.8)',
+            borderRadius: '26px',
+            padding: '14px 16px 12px',
             transition: 'all 0.25s ease',
             width: '100%',
             boxSizing: 'border-box'
@@ -2252,7 +2312,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             gap: '10px',
             width: '100%'
           }}>
-            <Search size={17} color="rgba(255, 200, 160, 0.5)" style={{ flexShrink: 0 }} />
+            <Search size={18} color="rgba(255, 255, 255, 0.55)" strokeWidth={2.2} style={{ flexShrink: 0 }} />
             <input
               type="text"
               value={inputMessage}
@@ -2282,17 +2342,17 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             paddingTop: '2px'
           }}>
             {/* Outils secondaires gauche : (+) et (🎙️) */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               {/* Bouton (+) Pièces justificatives */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.07)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  background: 'rgba(255, 255, 255, 0.06)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -2302,9 +2362,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 }}
                 title="Ajouter des pièces justificatives (+)"
                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.14)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
               >
-                <Plus size={18} strokeWidth={2.4} />
+                <Plus size={18} strokeWidth={2.4} color="rgba(255, 255, 255, 0.85)" />
               </button>
 
               {/* Bouton Micro (🎙️) Dictée vocale */}
@@ -2312,11 +2372,11 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 type="button"
                 onClick={handleToggleMic}
                 style={{
-                  width: '36px',
-                  height: '36px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '50%',
-                  background: isListeningMic ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255, 255, 255, 0.07)',
-                  border: isListeningMic ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.06)',
+                  background: isListeningMic ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255, 255, 255, 0.06)',
+                  border: isListeningMic ? '1px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.12)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -2326,7 +2386,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 }}
                 title={isListeningMic ? "Écoute en cours..." : "Dictée vocale"}
               >
-                <Mic size={17} />
+                <Mic size={18} strokeWidth={2.1} color={isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.85)'} />
               </button>
             </div>
 
@@ -2335,8 +2395,8 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               type="submit"
               disabled={isTyping}
               style={{
-                width: '42px',
-                height: '42px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 border: 'none',
@@ -2353,7 +2413,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               onMouseEnter={(e) => { if (!isTyping) e.currentTarget.style.transform = 'scale(1.05)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              <Send size={18} color="#ffffff" style={{ transform: 'translateX(1px)' }} />
+              <Send size={19} color="#ffffff" style={{ transform: 'rotate(0deg)' }} />
             </button>
           </div>
         </form>
