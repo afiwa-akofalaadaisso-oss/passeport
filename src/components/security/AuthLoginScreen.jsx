@@ -214,19 +214,7 @@ export default function AuthLoginScreen({ onLoginSuccess }) {
   };
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '430px',
-      minHeight: '620px',
-      maxHeight: 'min(94vh, 840px)',
-      background: '#0c0d10',
-      borderRadius: '28px',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 24px 70px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.06)',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'relative',
-      overflow: 'hidden',
+    <div className="responsive-app-shell" style={{
       color: '#f3f4f6',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>

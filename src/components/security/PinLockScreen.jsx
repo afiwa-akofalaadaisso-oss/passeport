@@ -49,17 +49,8 @@ export default function PinLockScreen({ onUnlock }) {
   }, [pin]);
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '430px',
-      height: '100%',
-      maxHeight: 'min(94vh, 840px)',
+    <div className="responsive-app-shell" style={{
       background: '#121215',
-      borderRadius: '28px',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 24px 70px rgba(0, 0, 0, 0.9), 0 0 1px 1px rgba(255, 255, 255, 0.06)',
-      display: 'flex',
-      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '40px 24px 30px',

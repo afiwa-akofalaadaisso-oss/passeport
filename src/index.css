@@ -122,45 +122,90 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: clamp(8px, 2vh, 20px);
+  padding: clamp(12px, 3vh, 24px);
   box-sizing: border-box;
+}
+
+/* Conteneur universel adaptatif (Desktop, Tablette, Mobile) */
+.responsive-app-shell {
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: min(94vh, 880px);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: #0c0d10;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+  margin: auto;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
 .mobile-screen-container {
   width: 100%;
-  max-width: 412px;
+  max-width: 480px;
   height: 100%;
-  max-height: min(94vh, 840px);
+  max-height: min(94vh, 880px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  border-radius: 42px !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 36px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
   margin: auto !important;
   position: relative;
   box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
+.video-screen-container {
+  width: 100%;
+  max-width: 480px;
+  height: 100%;
+  max-height: min(94vh, 880px);
+  position: relative;
+  overflow: hidden;
+  background: #000000;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95);
+  margin: auto;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   ADAPTATION POUR TOUS LES SMARTPHONES (iPhone, Android) : 100% PLEIN ÉCRAN
+   ========================================================================== */
+@media (max-width: 640px) {
   .app-wrapper {
     padding: 0 !important;
-  }
-
-  .mobile-screen-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    height: 100% !important;
+    margin: 0 !important;
+    width: 100vw !important;
     height: 100dvh !important;
     max-height: 100dvh !important;
     overflow: hidden !important;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: 0 !important;
+  }
+
+  .responsive-app-shell,
+  .mobile-screen-container,
+  .video-screen-container {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    flex: 1 1 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
     margin: 0 !important;
+    padding-top: env(safe-area-inset-top, 0px) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   }
 }
 

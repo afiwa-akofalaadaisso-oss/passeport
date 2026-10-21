@@ -509,21 +509,9 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   };
 
   return (
-    <div style={{
-      width: '100%',
-      maxWidth: '430px',
-      height: '100%',
-      maxHeight: 'min(94vh, 840px)',
+    <div className="responsive-app-shell" style={{
       background: '#151518',
-      borderRadius: '28px',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 24px 70px -10px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.06)',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      position: 'relative',
-      overflow: 'hidden',
-      margin: 'auto'
+      justifyContent: 'space-between'
     }}>
 
       {/* ========================================================

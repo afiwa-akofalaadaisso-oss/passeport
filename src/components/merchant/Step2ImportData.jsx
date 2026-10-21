@@ -176,10 +176,6 @@ export default function Step2ImportData({ operatorData, onBack, onReset, onProce
 
   return (
     <div className="video-screen-container" style={{
-      width: '412px',
-      maxWidth: '100vw',
-      flex: '0 0 412px',
-      height: 'min(94vh, 840px)',
       position: 'relative',
       overflow: 'hidden',
       background: '#000000',
