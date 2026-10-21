@@ -150,8 +150,9 @@ button {
   background: #121215;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: clamp(12px, 3vh, 24px);
+  align-items: stretch;
+  padding: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -160,16 +161,18 @@ button {
   width: 100%;
   max-width: 480px;
   height: 100%;
-  max-height: min(94vh, 880px);
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   background: #151518;
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95), 0 0 1px 1px rgba(255, 255, 255, 0.06);
-  margin: auto;
+  border-radius: 0;
+  border: none;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+  margin: 0 auto;
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
@@ -178,15 +181,17 @@ button {
   width: 100%;
   max-width: 480px;
   height: 100%;
-  max-height: min(94vh, 880px);
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  border-radius: 36px !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
-  margin: auto !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7) !important;
+  margin: 0 auto !important;
   position: relative;
   box-sizing: border-box;
 }
@@ -195,14 +200,16 @@ button {
   width: 100%;
   max-width: 480px;
   height: 100%;
-  max-height: min(94vh, 880px);
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
   position: relative;
   overflow: hidden;
   background: #000000;
-  border-radius: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.95);
-  margin: auto;
+  border-radius: 0;
+  border: none;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+  margin: 0 auto;
   box-sizing: border-box;
 }
 

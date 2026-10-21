@@ -795,7 +795,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   // 1. VUE ÉCRAN GAUCHE : PREMIUM PRO
   if (currentView === 'premium') {
     return (
-      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start' }}>
+      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start', height: '100dvh', minHeight: '100dvh', maxHeight: '100dvh', width: '100%' }}>
         <ScreenPremiumPro onBack={() => setCurrentView('chat')} />
       </div>
     );
@@ -804,7 +804,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   // 2. VUE ÉCRAN DROIT : SELECT VOICE
   if (currentView === 'voice') {
     return (
-      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start' }}>
+      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start', height: '100dvh', minHeight: '100dvh', maxHeight: '100dvh', width: '100%' }}>
         <ScreenVoiceSelect onBack={() => setCurrentView('chat')} onSaveVoice={(v) => setActiveVoice(v)} />
       </div>
     );
@@ -814,7 +814,15 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   return (
     <div className="responsive-app-shell" style={{
       background: '#151518',
-      justifyContent: 'space-between'
+      height: '100dvh',
+      minHeight: '100dvh',
+      maxHeight: '100dvh',
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
 
       {/* ========================================================
@@ -1343,9 +1351,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             alignItems: 'center',
             justifyContent: 'center',
             flex: 1,
-            minHeight: '100%',
+            margin: 'auto 0',
             padding: '8px 0 16px',
-            gap: '14px'
+            gap: '14px',
+            width: '100%'
           }}>
             {/* Orbe Bleu Lumineux Vortex (Style exact du screenshot du milieu) */}
             <div style={{
@@ -2182,12 +2191,14 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
       ======================================================== */}
       <div style={{
         flexShrink: 0,
-        padding: '4px 16px max(14px, env(safe-area-inset-bottom, 14px))',
+        padding: '6px 16px calc(12px + env(safe-area-inset-bottom, 12px))',
         display: 'flex',
         flexDirection: 'column',
         gap: '6px',
         background: '#151518',
-        zIndex: 20
+        zIndex: 20,
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
 
 
