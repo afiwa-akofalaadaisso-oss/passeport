@@ -27,8 +27,15 @@ import {
   Copy,
   Check,
   Target,
-  Compass
+  Compass,
+  Crown,
+  Mic,
+  Globe,
+  ArrowUpRight,
+  Volume2
 } from 'lucide-react';
+import ScreenPremiumPro from './ScreenPremiumPro';
+import ScreenVoiceSelect from './ScreenVoiceSelect';
 import { 
   checkBackendHealth, 
   sendChatMessage, 
@@ -96,6 +103,11 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
 
   const [copiedId, setCopiedId] = useState(null);
   const [inputFocused, setInputFocused] = useState(false);
+
+  // Navigation entre les 3 écrans : 'chat' (milieu) | 'premium' (gauche) | 'voice' (droite)
+  const [currentView, setCurrentView] = useState('chat');
+  const [activeVoice, setActiveVoice] = useState({ voiceId: 'paula', tone: 'Excited', speed: '1.50x' });
+  const [isListeningMic, setIsListeningMic] = useState(false);
 
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -618,6 +630,55 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     await refreshMemory();
   };
 
+  // Reconnaissance vocale par micro (HTML5 Web Speech API)
+  const handleToggleMic = () => {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      alert("La reconnaissance vocale n'est pas disponible sur ce navigateur. Vous pouvez saisir votre message au clavier.");
+      return;
+    }
+    try {
+      if (!isListeningMic) {
+        const recognition = new SpeechRec();
+        recognition.lang = 'fr-FR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.onstart = () => setIsListeningMic(true);
+        recognition.onresult = (event) => {
+          const transcript = event.results?.[0]?.[0]?.transcript;
+          if (transcript) setInputMessage(transcript);
+          setIsListeningMic(false);
+        };
+        recognition.onerror = () => setIsListeningMic(false);
+        recognition.onend = () => setIsListeningMic(false);
+        recognition.start();
+      } else {
+        setIsListeningMic(false);
+      }
+    } catch {
+      setIsListeningMic(false);
+    }
+  };
+
+  // 1. VUE ÉCRAN GAUCHE : PREMIUM PRO
+  if (currentView === 'premium') {
+    return (
+      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start' }}>
+        <ScreenPremiumPro onBack={() => setCurrentView('chat')} />
+      </div>
+    );
+  }
+
+  // 2. VUE ÉCRAN DROIT : SELECT VOICE
+  if (currentView === 'voice') {
+    return (
+      <div className="responsive-app-shell" style={{ background: '#08080a', justifyContent: 'flex-start' }}>
+        <ScreenVoiceSelect onBack={() => setCurrentView('chat')} onSaveVoice={(v) => setActiveVoice(v)} />
+      </div>
+    );
+  }
+
+  // 3. VUE ÉCRAN CENTRAL : INTERFACE CHAT AI AMADOU
   return (
     <div className="responsive-app-shell" style={{
       background: '#151518',
@@ -625,10 +686,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     }}>
 
       {/* ========================================================
-          1. HEADER ULTRA-ÉPURÉ : ✦ AI Assistant | ··· 🕒 ✕
+          1. HEADER AVEC BOUTON 👑 PRO (Exact screenshot du milieu)
       ======================================================== */}
       <div style={{
-        padding: 'calc(14px + env(safe-area-inset-top, 0px)) 20px 14px',
+        padding: 'calc(14px + env(safe-area-inset-top, 0px)) 18px 12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -638,11 +699,22 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         zIndex: 25,
         flexShrink: 0
       }}>
-        {/* Titre à gauche : Sparkle Cyan + AI Assistant */}
+        {/* Titre à gauche : Mini-orbe bleu + Amadou AI */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={18} color="#38bdf8" style={{ filter: 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.6))' }} />
-          <span style={{ fontSize: '0.98rem', fontWeight: '700', color: '#ffffff', letterSpacing: '-0.01em' }}>
-            Passeport Financier & Audit
+          <img
+            src="/blue_aurora_orb.jpg"
+            alt="Amadou AI"
+            style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '1.5px solid rgba(0, 112, 243, 0.5)',
+              boxShadow: '0 0 10px rgba(0, 112, 243, 0.45)'
+            }}
+          />
+          <span style={{ fontSize: '1rem', fontWeight: '800', color: '#ffffff', letterSpacing: '-0.02em' }}>
+            Amadou AI
           </span>
           {backendStatus.online && (
             <span style={{
@@ -656,15 +728,30 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           )}
         </div>
 
-        {/* Contrôles à droite : ··· | 🕒 (Mémoire) | ✕ */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', position: 'relative' }}>
-          {/* Menu Options ··· */}
+        {/* Contrôles à droite : [👑 Pro] | 🕒 (Mémoire) | ··· | ✕ */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative' }}>
+          {/* Bouton 👑 Pro (exact screenshot du milieu !) */}
           <button
-            onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-            style={{ color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-            title="Options"
+            onClick={() => setCurrentView('premium')}
+            style={{
+              background: 'linear-gradient(90deg, #0070f3 0%, #2563eb 100%)',
+              border: 'none',
+              borderRadius: '9999px',
+              padding: '5px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              color: '#ffffff',
+              fontSize: '0.74rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              boxShadow: '0 2px 10px rgba(0, 112, 243, 0.45)',
+              transition: 'transform 0.15s'
+            }}
+            title="Ouvrir l'écran Premium Pro"
           >
-            <MoreHorizontal size={18} />
+            <Crown size={12} color="#eab308" />
+            <span>Pro</span>
           </button>
 
           {/* Bouton Horloge 🕒 : Ouvre la base de données SQLite de mémoire */}
@@ -699,6 +786,15 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 {memoryFacts.length}
               </span>
             )}
+          </button>
+
+          {/* Menu Options ··· */}
+          <button
+            onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+            style={{ color: 'rgba(255, 255, 255, 0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            title="Options"
+          >
+            <MoreHorizontal size={18} />
           </button>
 
           {/* Bouton Fermer / Retour ✕ */}
@@ -795,6 +891,87 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
       </div>
 
       {/* ========================================================
+          SÉLECTEUR RAPIDE 3 ÉCRANS : [ 👑 Premium ] [ ✦ Chat AI ] [ 🎙 Voix ]
+      ======================================================== */}
+      <div style={{
+        padding: '0 16px 8px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '6px',
+        background: 'rgba(21, 21, 24, 0.85)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        flexShrink: 0
+      }}>
+        <button
+          onClick={() => setCurrentView('premium')}
+          style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '9999px',
+            padding: '5px 12px',
+            color: 'rgba(255, 255, 255, 0.65)',
+            fontSize: '0.72rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.65)'}
+        >
+          <Crown size={12} color="#eab308" />
+          <span>Écran Pro</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentView('chat')}
+          style={{
+            background: 'rgba(0, 112, 243, 0.2)',
+            border: '1px solid #0070f3',
+            borderRadius: '9999px',
+            padding: '5px 14px',
+            color: '#ffffff',
+            fontSize: '0.72rem',
+            fontWeight: '700',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            cursor: 'pointer',
+            boxShadow: '0 0 10px rgba(0, 112, 243, 0.4)'
+          }}
+        >
+          <Sparkles size={12} color="#38bdf8" />
+          <span>Chat AI</span>
+        </button>
+
+        <button
+          onClick={() => setCurrentView('voice')}
+          style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '9999px',
+            padding: '5px 12px',
+            color: 'rgba(255, 255, 255, 0.65)',
+            fontSize: '0.72rem',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.color = '#38bdf8'}
+          onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.65)'}
+        >
+          <Volume2 size={12} color="#38bdf8" />
+          <span>Écran Voix</span>
+        </button>
+      </div>
+
+      {/* ========================================================
           2. ZONE PRINCIPALE : HERO VISUAL OU CONVERSATION
       ======================================================== */}
       <div 
@@ -824,115 +1001,224 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             padding: '8px 0 16px',
             gap: '14px'
           }}>
-            {/* Orbe Holographique 3D Flottante (Asset généré Raycast Style) */}
+            {/* Orbe Bleu Lumineux Vortex (Style exact du screenshot du milieu) */}
             <div style={{
               position: 'relative',
-              width: '135px',
-              height: '135px',
+              width: '140px',
+              height: '140px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: '10px'
+              marginTop: '8px'
             }}>
               <img
-                src="/ai_holographic_orb.jpg"
-                alt="Holographic AI Orb"
-                className="orb-animated"
+                src="/blue_aurora_orb.jpg"
+                alt="Blue Aurora Orb"
+                className="blue-orb-animated"
                 style={{
-                  width: '124px',
-                  height: '124px',
+                  width: '132px',
+                  height: '132px',
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  display: 'block'
+                  display: 'block',
+                  boxShadow: '0 0 35px rgba(0, 112, 243, 0.55), 0 0 70px rgba(0, 112, 243, 0.25)',
+                  border: '1.5px solid rgba(0, 112, 243, 0.45)'
                 }}
               />
             </div>
 
             {/* Titre et Sous-titre style exact de la capture d'écran */}
-            <div style={{ textAlign: 'center', marginTop: '4px' }}>
+            <div style={{ textAlign: 'center', marginTop: '2px' }}>
               <h2 style={{
                 margin: 0,
-                fontSize: '1.42rem',
-                fontWeight: '700',
+                fontSize: '1.45rem',
+                fontWeight: '800',
                 color: '#ffffff',
                 letterSpacing: '-0.02em'
               }}>
-                Hello there, human!
+                Hello I'm Amadou
               </h2>
               <p style={{
                 margin: '4px 0 0',
-                fontSize: '1.12rem',
-                fontWeight: '600',
-                color: 'rgba(255, 255, 255, 0.88)',
-                letterSpacing: '-0.01em'
+                fontSize: '0.84rem',
+                fontWeight: '500',
+                color: 'rgba(255, 255, 255, 0.55)'
               }}>
-                How can I assist you?
+                Your AI digital financial partner
               </p>
             </div>
 
-            {/* Cartes de suggestions d'actions (Exactement comme dans la capture) */}
+            {/* Cartes d'action style exact du screenshot du milieu (1 grande carte + 2 cartes côte à côte) */}
             <div style={{
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
               gap: '10px',
-              marginTop: '16px'
+              marginTop: '12px'
             }}>
-              {/* Carte 1 : Audit Wave (Étape 1) */}
-              <button
+              {/* Carte 1 : Grande carte supérieure en aurore bleue avec flèche ↗ */}
+              <div
                 onClick={runStep1WaveExtraction}
                 style={{
                   width: '100%',
-                  background: '#222226',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: '16px',
-                  padding: '14px 16px',
-                  textAlign: 'left',
-                  color: 'rgba(255, 255, 255, 0.85)',
-                  fontSize: '0.84rem',
-                  lineHeight: 1.45,
+                  background: 'linear-gradient(135deg, rgba(8, 30, 62, 0.85) 0%, rgba(13, 40, 80, 0.8) 50%, rgba(5, 18, 40, 0.95) 100%)',
+                  border: '1px solid rgba(0, 112, 243, 0.38)',
+                  borderRadius: '20px',
+                  padding: '16px 18px',
+                  position: 'relative',
                   cursor: 'pointer',
+                  boxShadow: '0 8px 25px rgba(0, 0, 0, 0.4), inset 0 0 25px rgba(0, 112, 243, 0.15)',
                   transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)'
+                  overflow: 'hidden'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#2a2a2f'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#222226'}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#0070f3'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(0, 112, 243, 0.38)'}
               >
-                <div style={{ fontWeight: '700', color: '#ffffff', marginBottom: '2px' }}>
-                  📱 Auditer mes flux {operatorName}
-                </div>
-                <div style={{ fontSize: '0.76rem', color: 'rgba(255, 255, 255, 0.6)' }}>
-                  Extraire mes transactions, certifier mon chiffre d'affaires et ma régularité.
-                </div>
-              </button>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: '0.94rem',
+                      fontWeight: '800',
+                      color: '#ffffff',
+                      marginBottom: '4px'
+                    }}>
+                      Auditer mes flux {operatorName}
+                    </div>
+                    <div style={{
+                      fontSize: '0.76rem',
+                      color: 'rgba(255, 255, 255, 0.65)',
+                      lineHeight: '1.4'
+                    }}>
+                      Rapprochement automatique de vos flux et certification de vos encaissements.
+                    </div>
+                  </div>
 
-              {/* Carte 2 : Carnet de caisse & charges */}
-              <button
-                onClick={runStep1WaveExtraction}
-                style={{
-                  width: '100%',
-                  background: '#222226',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: '16px',
-                  padding: '14px 16px',
-                  textAlign: 'left',
-                  color: 'rgba(255, 255, 255, 0.85)',
-                  fontSize: '0.84rem',
-                  lineHeight: 1.45,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#2a2a2f'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#222226'}
-              >
-                <div style={{ fontWeight: '700', color: '#ffffff', marginBottom: '2px' }}>
-                  📖 Déchiffrer mon carnet de caisse & marge
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: 'rgba(0, 112, 243, 0.35)',
+                    border: '1px solid rgba(56, 189, 248, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#38bdf8',
+                    flexShrink: 0
+                  }}>
+                    <ArrowUpRight size={17} />
+                  </div>
                 </div>
-                <div style={{ fontSize: '0.76rem', color: 'rgba(255, 255, 255, 0.6)' }}>
-                  Scanner mes notes manuscrites d'achats et calculer mon bénéfice net.
+              </div>
+
+              {/* Cartes 2 & 3 : Deux cartes en grille côte à côte (exact screenshot du milieu) */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '10px',
+                width: '100%'
+              }}>
+                {/* Carte 2 : Déchiffrer Carnet */}
+                <div
+                  onClick={runStep2CarnetExtraction}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '18px',
+                    padding: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    minHeight: '95px',
+                    gap: '10px',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 112, 243, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#ffffff', marginBottom: '3px' }}>
+                      Déchiffrer Carnet
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.55)', lineHeight: 1.35 }}>
+                      Livre d'achats de stock & marge nette.
+                    </div>
+                  </div>
+
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: 'rgba(0, 112, 243, 0.35)',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#38bdf8',
+                    alignSelf: 'flex-end'
+                  }}>
+                    <ArrowUpRight size={15} />
+                  </div>
                 </div>
-              </button>
+
+                {/* Carte 3 : Bilan SYSCOHADA */}
+                <div
+                  onClick={runStep4BilanGeneration}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '18px',
+                    padding: '14px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    minHeight: '95px',
+                    gap: '10px',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.07)';
+                    e.currentTarget.style.borderColor = 'rgba(0, 112, 243, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: '0.86rem', fontWeight: '800', color: '#ffffff', marginBottom: '3px' }}>
+                      Bilan SYSCOHADA
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.55)', lineHeight: 1.35 }}>
+                      États financiers SMT & score DSCR.
+                    </div>
+                  </div>
+
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: 'rgba(0, 112, 243, 0.35)',
+                    border: '1px solid rgba(56, 189, 248, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#38bdf8',
+                    alignSelf: 'flex-end'
+                  }}>
+                    <ArrowUpRight size={15} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -1546,100 +1832,12 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           )}
         </div>
 
-        {/* Bouton centre : 🤖 AI Assistant ⌵ */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowModelMenu(!showModelMenu)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: '#202024',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '9999px',
-              padding: '6px 12px',
-              color: 'rgba(255, 255, 255, 0.75)',
-              fontSize: '0.74rem',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            <img
-              src="/ai_holographic_orb.jpg"
-              alt="Orb"
-              style={{ width: '15px', height: '15px', borderRadius: '50%' }}
-            />
-            <span>{selectedModel}</span>
-            <ChevronDown size={12} />
-          </button>
-
-          {showModelMenu && (
-            <div style={{
-              position: 'absolute',
-              bottom: '36px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: '#1d1d22',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '14px',
-              padding: '6px',
-              width: '210px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.85)',
-              zIndex: 40,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '3px'
-            }}>
-              {['Amadou · LangGraph', 'Claude 3.5 Sonnet Vision', 'Moteur Déterministe SMT'].map((model) => (
-                <button
-                  key={model}
-                  onClick={() => { setSelectedModel(model); setShowModelMenu(false); }}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    background: selectedModel === model ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    color: '#ffffff',
-                    fontSize: '0.74rem',
-                    textAlign: 'left',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {model}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Bouton droite : ↩ (Undo / Recommencer à zéro) */}
-        <button
-          onClick={handleResetAll}
-          style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#202024',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'rgba(255, 255, 255, 0.7)',
-            cursor: 'pointer'
-          }}
-          title="Recommencer"
-        >
-          <RotateCcw size={14} />
-        </button>
-        </div>
-
-        {/* 4. BARRE DE SAISIE FLOTTANTE EN PILULE */}
-        <div style={{ width: '100%' }}>
-        {/* Prévisualisation des photos sélectionnées */}
+        {/* 1. Prévisualisation des photos sélectionnées */}
         {selectedPhotos.length > 0 && (
           <div style={{
             display: 'flex',
             gap: '8px',
-            padding: '6px 12px 10px',
+            padding: '2px 6px',
             overflowX: 'auto'
           }}>
             {selectedPhotos.map((photo, i) => (
@@ -1652,7 +1850,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                     height: '38px',
                     borderRadius: '8px',
                     objectFit: 'cover',
-                    border: '1.5px solid #38bdf8'
+                    border: '1.5px solid #0070f3'
                   }}
                 />
                 <button
@@ -1678,6 +1876,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           </div>
         )}
 
+        {/* 2. CHAMP DE SAISIE EN PILULE (Placeholder: Message Chatbot AI) */}
         <form
           onSubmit={handleSendMessage}
           style={{
@@ -1687,7 +1886,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             border: `1.5px solid ${inputFocused ? '#0070f3' : 'rgba(255, 255, 255, 0.1)'}`,
             boxShadow: inputFocused ? '0 0 16px rgba(0, 112, 243, 0.45)' : 'none',
             borderRadius: '9999px',
-            padding: '5px 6px 5px 18px',
+            padding: '6px 8px 6px 18px',
             gap: '8px',
             transition: 'border-color 0.2s, box-shadow 0.2s'
           }}
@@ -1701,14 +1900,13 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             style={{ display: 'none' }}
           />
 
-          {/* Champ input */}
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
-            placeholder="Ask AI anything..."
+            placeholder="Message Chatbot AI..."
             style={{
               flex: 1,
               background: 'transparent',
@@ -1719,28 +1917,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             }}
           />
 
-          {/* Bouton @ (Ajout de documents/photos) */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: '30px',
-              height: '30px',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'rgba(255, 255, 255, 0.6)',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-            title="Joindre un document ou capture"
-          >
-            <AtSign size={16} />
-          </button>
-
-          {/* Bouton ↑ (Envoyer) - Style exact cercle bleu vibrant du screenshot */}
+          {/* Bouton ↑ Envoyer */}
           <button
             type="submit"
             style={{
@@ -1762,6 +1939,158 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             <ArrowUp size={16} strokeWidth={2.5} />
           </button>
         </form>
+
+        {/* 3. BARRE D'OUTILS DU SCREENSHOT DU MILIEU : [+] [🌐 Web Search]  ---  [🎙] [〰 Audio Voix] */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '8px',
+          padding: '2px 4px 0'
+        }}>
+          {/* Gauche : [+] et [🌐 Web Search] */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Bouton + (Documents / Photos) */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                background: '#202024',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'rgba(255, 255, 255, 0.85)',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              title="Ajouter un carnet ou capture (+)"
+              onMouseEnter={(e) => e.currentTarget.style.background = '#2a2a30'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#202024'}
+            >
+              <Plus size={17} />
+            </button>
+
+            {/* Pill [🌐 Web Search] */}
+            <div style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => setShowFindInMenu(!showFindInMenu)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: '#202024',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '9999px',
+                  padding: '7px 12px',
+                  color: 'rgba(255, 255, 255, 0.85)',
+                  fontSize: '0.74rem',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                <Globe size={13} color="#38bdf8" />
+                <span>Web Search</span>
+                <ChevronDown size={11} color="rgba(255,255,255,0.4)" />
+              </button>
+
+              {showFindInMenu && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '38px',
+                  left: 0,
+                  background: '#1d1d22',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '14px',
+                  padding: '6px',
+                  width: '190px',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.85)',
+                  zIndex: 40,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '3px'
+                }}>
+                  {['Toutes les sources', 'Flux Wave & Orange', 'Livre de Caisse', 'SYSCOHADA SMT Live'].map((src) => (
+                    <button
+                      key={src}
+                      type="button"
+                      onClick={() => { setSelectedSource(src); setShowFindInMenu(false); }}
+                      style={{
+                        padding: '6px 10px',
+                        borderRadius: '8px',
+                        background: selectedSource === src ? 'rgba(0,112,243,0.2)' : 'transparent',
+                        color: selectedSource === src ? '#38bdf8' : '#ffffff',
+                        fontSize: '0.74rem',
+                        textAlign: 'left',
+                        cursor: 'pointer',
+                        fontWeight: selectedSource === src ? '700' : '400'
+                      }}
+                    >
+                      {src}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Droite : [🎙 Micro] et [〰 Bouton Audio Voix] */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Bouton Micro */}
+            <button
+              type="button"
+              onClick={handleToggleMic}
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                background: isListeningMic ? 'rgba(239, 68, 68, 0.2)' : '#202024',
+                border: isListeningMic ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.85)',
+                cursor: 'pointer',
+                boxShadow: isListeningMic ? '0 0 12px rgba(239, 68, 68, 0.5)' : 'none',
+                transition: 'all 0.2s'
+              }}
+              title={isListeningMic ? "Écoute en cours... Cliquez pour arrêter" : "Dicter au micro"}
+            >
+              <Mic size={16} />
+            </button>
+
+            {/* Bouton 〰 Ondes Audio (Ouvre l'Écran Voix - Exact du screenshot du milieu !) */}
+            <button
+              type="button"
+              onClick={() => setCurrentView('voice')}
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #0070f3 0%, #2563eb 100%)',
+                border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#ffffff',
+                cursor: 'pointer',
+                boxShadow: '0 0 14px rgba(0, 112, 243, 0.55)',
+                transition: 'transform 0.15s'
+              }}
+              title="Configurer la voix de l'IA (Écran Voix)"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '14px' }}>
+                <span className="wave-bar-1" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
+                <span className="wave-bar-2" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
+                <span className="wave-bar-3" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
