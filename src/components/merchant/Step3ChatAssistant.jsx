@@ -86,10 +86,6 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   // Modales & Tiroirs UI
   const [showMemoryDrawer, setShowMemoryDrawer] = useState(false);
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
-  const [showFindInMenu, setShowFindInMenu] = useState(false);
-  const [showModelMenu, setShowModelMenu] = useState(false);
-  const [selectedSource, setSelectedSource] = useState('Toutes les sources');
-  const [selectedModel, setSelectedModel] = useState('Amadou · LangGraph');
 
   // Base de données : Mémoire persistante SQLite
   const [memoryFacts, setMemoryFacts] = useState([]);
@@ -2357,73 +2353,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         background: '#151518',
         zIndex: 20
       }}>
-        {/* 3. BARRE D'OUTILS INTERMÉDIAIRE : [🔍 Find in ⌵] [✦ AI Assistant ⌵] [↩] */}
-        <div style={{
-          padding: '2px 0 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '8px'
-        }}>
-        {/* Bouton gauche : 🔍 Find in ⌵ */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setShowFindInMenu(!showFindInMenu)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              background: '#202024',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: '9999px',
-              padding: '6px 12px',
-              color: 'rgba(255, 255, 255, 0.75)',
-              fontSize: '0.74rem',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            <Search size={13} />
-            <span>{selectedSource}</span>
-            <ChevronDown size={12} />
-          </button>
 
-          {showFindInMenu && (
-            <div style={{
-              position: 'absolute',
-              bottom: '36px',
-              left: 0,
-              background: '#1d1d22',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '14px',
-              padding: '6px',
-              width: '180px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.85)',
-              zIndex: 40,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '3px'
-            }}>
-              {['Toutes les sources', 'Flux Wave', 'Carnet de Caisse', 'NINEA & RCCM', 'SYSCOHADA SMT'].map((src) => (
-                <button
-                  key={src}
-                  onClick={() => { setSelectedSource(src); setShowFindInMenu(false); }}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '8px',
-                    background: selectedSource === src ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    color: '#ffffff',
-                    fontSize: '0.74rem',
-                    textAlign: 'left',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {src}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
         {/* 1. Prévisualisation des photos sélectionnées */}
         {selectedPhotos.length > 0 && (
@@ -2615,7 +2545,6 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           )}
         </form>
       </div>
-    </div>
 
       {/* ========================================================
           5. TIROIR MÉMOIRE SQLITE DE L'AGENT (Bouton 🕒)
