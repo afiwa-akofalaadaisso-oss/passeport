@@ -3,6 +3,7 @@ API FastAPI pour l'Agent LangGraph Passeport PME.
 Endpoints pour le chat, l'OCR multimodal, l'inspection d'état et le calcul SMT.
 """
 import os
+import re
 import random
 import time
 from datetime import datetime
@@ -301,6 +302,54 @@ def chat_endpoint(req: ChatRequest):
                 state_update["legal_form"] = str(v)
             elif k == "isFormalized":
                 state_update["is_formalized"] = bool(v)
+
+    # Extraction intelligente des montants réels saisis par l'utilisateur dans son message texte
+    if req.message:
+        msg_text = req.message.lower()
+        # Chiffre d'affaires / Ventes / Recettes Wave ou OM
+        ca_match = re.search(r"(?:ca|chiffre\s+d[\s'’]?affaires?|recettes?|ventes?|encaiss[ée]s?|gagn[ée])[^\d]{0,40}?([\d\s]{4,12})", msg_text)
+        if ca_match:
+            try:
+                num_str = re.sub(r"\s+", "", ca_match.group(1)).strip()
+                if num_str.isdigit() and int(num_str) > 1000:
+                    val = float(num_str)
+                    state_update["ca_mobile_money"] = val
+                    state_update["ca_mobile_annual"] = val * 12
+                    add_memory_fact(req.user_id, "finance", "CA Mensuel Déclaré", f"{int(val):,} FCFA/mois")
+            except Exception:
+                pass
+
+        # Achats de marchandises
+        achats_match = re.search(r"(?:achats?|d[ée]penses?\s+marchandises?)[^\d]{0,40}?([\d\s]{4,12})", msg_text)
+        if achats_match:
+            try:
+                num_str = re.sub(r"\s+", "", achats_match.group(1)).strip()
+                if num_str.isdigit() and int(num_str) > 1000:
+                    val = float(num_str)
+                    state_update["purchases_goods"] = val
+                    add_memory_fact(req.user_id, "finance", "Achats Marchandises", f"{int(val):,} FCFA")
+            except Exception:
+                pass
+
+        # Charges d'exploitation / Loyer
+        charges_match = re.search(r"(?:charges?|loyer|factures?|d[ée]penses?)[^\d]{0,40}?([\d\s]{4,12})", msg_text)
+        if charges_match:
+            try:
+                num_str = re.sub(r"\s+", "", charges_match.group(1)).strip()
+                if num_str.isdigit() and int(num_str) > 1000:
+                    val = float(num_str)
+                    state_update["operating_charges"] = val
+                    add_memory_fact(req.user_id, "finance", "Charges Exploitation", f"{int(val):,} FCFA")
+            except Exception:
+                pass
+
+        # Nom de l'entreprise
+        name_match = re.search(r"(?:mon\s+entreprise\s+s[\s'’]?appelle|nom\s+de\s+l[\s'’]?entreprise|boutique|soci[ée]t[ée]|ets)\s*[:\-]?(?:\s+est)?\s*([A-Za-z0-9\s&]{3,35}?)(?:\.|\,|$|\n)", req.message, re.IGNORECASE)
+        if name_match:
+            cand = name_match.group(1).strip()
+            if len(cand) >= 3 and not cand.lower().startswith("est"):
+                state_update["company_name"] = cand.upper()
+                add_memory_fact(req.user_id, "identite", "Raison Sociale", cand.upper())
 
     # Si l'utilisateur clique sur une action guidée (étape 1, 2, 3 ou 4)
     # et qu'aucune donnée n'est fournie, nous effectuons l'extraction automatique
