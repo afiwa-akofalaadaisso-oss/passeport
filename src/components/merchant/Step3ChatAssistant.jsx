@@ -904,7 +904,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               boxShadow: '0 4px 16px rgba(249, 115, 22, 0.45)',
               transition: 'transform 0.15s, opacity 0.15s'
             }}
-            title="Get Plus"
+            title="Passer en Pro"
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
@@ -915,7 +915,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               fontWeight: '700',
               letterSpacing: '-0.01em'
             }}>
-              Get Plus
+              Passer en Pro
             </span>
           </button>
 
@@ -1245,7 +1245,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               }}>
                 <User size={12} color="#fb923c" />
               </div>
-              <span>Hello {merchantDisplayName}</span>
+              <span>Bonjour {merchantDisplayName}</span>
             </div>
 
             {/* 2. Orbe Éclipse Solaire Flamboyante avec pulsation corona */}
@@ -1274,7 +1274,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               />
             </div>
 
-            {/* 3. Titre éclatant style exact screenshot : How can i assist you today? */}
+            {/* 3. Titre éclatant : Comment puis-je vous aider aujourd'hui ? */}
             <div style={{ textAlign: 'center' }}>
               <h2 style={{
                 margin: 0,
@@ -1286,7 +1286,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 letterSpacing: '-0.02em',
                 lineHeight: 1.25
               }}>
-                How can i assist you today?
+                Comment puis-je vous aider aujourd'hui ?
               </h2>
             </div>
           </div>
@@ -2078,7 +2078,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 transform: 'translateX(-38px)',
                 minWidth: 'max-content'
               }}>
-                {/* Pilule 1 (tronquée sur le bord gauche comme '...ange') */}
+                {/* Pilule 1 (tronquée sur le bord gauche) */}
                 <button
                   type="button"
                   onClick={() => handleSendSuggestion("Analyser la transition et la rentabilité de mon activité commerciale")}
@@ -2119,10 +2119,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <Briefcase size={12} color="#ffffff" />
                   </div>
-                  <span>Career change</span>
+                  <span>Transition PME</span>
                 </button>
 
-                {/* Pilule 2 (Resume writing avec icône document) */}
+                {/* Pilule 2 (Synthèse d'activité avec icône document) */}
                 <button
                   type="button"
                   onClick={() => handleSendSuggestion("Rédiger la synthèse certifiée de mon activité et profil commerçant")}
@@ -2163,10 +2163,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <FileSpreadsheet size={12} color="#ffffff" />
                   </div>
-                  <span>Resume writing</span>
+                  <span>Synthèse d'activité</span>
                 </button>
 
-                {/* Pilule 3 (Career change avec icône) */}
+                {/* Pilule 3 (Modèle économique) */}
                 <button
                   type="button"
                   onClick={() => handleSendSuggestion("Auditer l'évolution de mon modèle économique et flux d'affaires")}
@@ -2207,7 +2207,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <Building2 size={12} color="#ffffff" />
                   </div>
-                  <span>Career change</span>
+                  <span>Modèle économique</span>
                 </button>
 
                 {/* Pilule 4 */}
@@ -2276,7 +2276,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 transform: 'translateX(-10px)',
                 minWidth: 'max-content'
               }}>
-                {/* Pilule 1 (Photo editing tronquée sur le bord gauche) */}
+                {/* Pilule 1 (Audit des reçus tronquée sur le bord gauche) */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -2317,10 +2317,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <Camera size={12} color="#ffffff" />
                   </div>
-                  <span>Photo editing</span>
+                  <span>Audit des reçus</span>
                 </button>
 
-                {/* Pilule 2 (Dog Training centré sous l'espace de la ligne 1) */}
+                {/* Pilule 2 (Score & Solvabilité centré sous l'espace de la ligne 1) */}
                 <button
                   type="button"
                   onClick={() => handleSendSuggestion("Calculer mon ratio de solvabilité DSCR et scoring bancaire")}
@@ -2361,10 +2361,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <Target size={12} color="#ffffff" />
                   </div>
-                  <span>Dog Training</span>
+                  <span>Score & Solvabilité</span>
                 </button>
 
-                {/* Pilule 3 (Photo editing avec icône crayon) */}
+                {/* Pilule 3 (Photos factures avec icône crayon) */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -2405,7 +2405,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   }}>
                     <Edit3 size={12} color="#ffffff" />
                   </div>
-                  <span>Photo editing</span>
+                  <span>Photos factures</span>
                 </button>
 
                 {/* Pilule 4 */}
@@ -2484,7 +2484,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             style={{ display: 'none' }}
           />
 
-          {/* Ligne Supérieure : Loupe 🔍 + Champ de saisie "Type here you want to know....." */}
+          {/* Ligne Supérieure : Loupe 🔍 + Champ de saisie "Écrivez ce que vous souhaitez savoir....." */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -2498,7 +2498,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
               onChange={(e) => setInputMessage(e.target.value)}
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
-              placeholder="Type here you want to know....."
+              placeholder="Écrivez ce que vous souhaitez savoir....."
               style={{
                 flex: 1,
                 background: 'transparent',
