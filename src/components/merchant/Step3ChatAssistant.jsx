@@ -567,53 +567,60 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
     setMessages(prev => [...prev, assistantMsg]);
   };
 
-  // Envoi de message libre vers l'agent
+  // Envoi de message libre vers l'agent (Conversation directe avec LangGraph & Claude 3.5 Sonnet)
   const handleSendMessage = async (e) => {
     e?.preventDefault();
-    if (!inputMessage.trim() && selectedPhotos.length === 0) return;
+    const text = inputMessage.trim();
+    const currentPhotos = [...selectedPhotos];
+    if (!text && currentPhotos.length === 0) return;
 
-    if (pipelineStep === 1) {
-      await runStep1WaveExtraction();
-    } else if (pipelineStep === 2) {
-      await runStep2CarnetExtraction();
-    } else if (pipelineStep === 3) {
-      await runStep3LegalExtraction();
-    } else if (pipelineStep === 4) {
-      await runStep4BilanGeneration();
-    } else {
-      const text = inputMessage.trim();
-      const currentPhotos = [...selectedPhotos];
-      const userMsg = {
-        id: Date.now(),
-        sender: 'user',
-        text,
-        photos: currentPhotos,
-        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, userMsg]);
-      setInputMessage('');
-      setSelectedPhotos([]);
-      setIsTyping(true);
-      setTypingText('Amadou réfléchit avec LangGraph...');
+    const userMsg = {
+      id: Date.now(),
+      sender: 'user',
+      text,
+      photos: currentPhotos,
+      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    };
 
+    setMessages(prev => [...prev, userMsg]);
+    setInputMessage('');
+    setSelectedPhotos([]);
+    setIsTyping(true);
+    setTypingText('Amadou réfléchit avec LangGraph...');
+
+    try {
       const apiRes = await sendChatMessage({
         userId: merchantId,
         message: text,
         operator: operatorData?.operator || 'wave',
+        stepHint: pipelineStep,
         photos: currentPhotos
       });
 
       setIsTyping(false);
-      const assistantReply = apiRes.response || "J'ai bien noté cette information dans votre dossier d'audit.";
+      const assistantReply = apiRes?.response || "J'ai bien noté cette information dans votre dossier d'audit.";
+
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
         sender: 'assistant',
         text: assistantReply,
         timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
       }]);
+
+      if (apiRes?.step_number) {
+        setPipelineStep(apiRes.step_number);
+      }
+
       await refreshMemory();
+    } catch {
+      setIsTyping(false);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'assistant',
+        text: "Désolé, une petite erreur de communication est survenue avec le serveur de l'Agent. Veuillez vérifier que le backend est en cours d'exécution.",
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      }]);
     }
-    setInputMessage('');
   };
 
   // Réinitialisation complète (avec confirmation de remise à zéro de la mémoire SQLite)
