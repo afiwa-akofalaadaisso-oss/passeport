@@ -21,6 +21,7 @@ import {
   ExternalLink,
   ShieldCheck,
   ChevronDown,
+  ChevronRight,
   Layers,
   Sparkle,
   Lock,
@@ -33,7 +34,12 @@ import {
   Globe,
   ArrowUpRight,
   Volume2,
-  Menu
+  Menu,
+  Share2,
+  Pin,
+  Folder,
+  Archive,
+  ThumbsDown
 } from 'lucide-react';
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
@@ -117,13 +123,53 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   const [certifiedBilanData, setCertifiedBilanData] = useState(null);
   const [isProcessingBatch, setIsProcessingBatch] = useState(false);
 
+  // Nouveaux états style ChatGPT (Menu d'options contextuel & actions rapides)
+  const [isPinned, setIsPinned] = useState(false);
+  const [showChatSearch, setShowChatSearch] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
+  const [showSentFilesModal, setShowSentFilesModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [currentProject, setCurrentProject] = useState('Passeport Financier PME');
+  const [feedbackGiven, setFeedbackGiven] = useState({});
+  const [toastMessage, setToastMessage] = useState(null);
+
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  const showToast = (text) => {
+    setToastMessage(text);
+    setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  const handleShareChat = (text = null) => {
+    const shareText = text || `Dossier Financier PME certifié - Wave & SYSCOHADA\nConsulter le bilan certifié sur Passeport PME.`;
+    navigator.clipboard?.writeText(shareText);
+    showToast('✓ Lien copié dans le presse-papier !');
+    setShowOptionsMenu(false);
+  };
+
+  const handleTogglePin = () => {
+    const next = !isPinned;
+    setIsPinned(next);
+    showToast(next ? '📌 Conversation épinglée aux favoris !' : 'Conversation désépinglée');
+    setShowOptionsMenu(false);
+  };
+
+  const handleArchiveChat = () => {
+    showToast('🗄️ Conversation archivée dans vos dossiers PME');
+    setShowOptionsMenu(false);
+  };
+
+  const handleThumbsDown = (msgId) => {
+    setFeedbackGiven(prev => ({ ...prev, [msgId]: true }));
+    showToast('Merci pour votre retour d\'amélioration !');
+  };
 
   const handleCopyText = (text, id) => {
     if (!text) return;
     navigator.clipboard?.writeText(text);
     setCopiedId(id);
+    showToast('✓ Texte copié dans le presse-papier !');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -916,86 +962,227 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             <X size={18} />
           </button>
 
-          {/* Dropdown Options */}
+          {/* Dropdown Options Contextuel (Style exact de la capture d'écran ChatGPT) */}
           {showOptionsMenu && (
-            <div style={{
-              position: 'absolute',
-              right: 0,
-              top: '32px',
-              background: '#1d1d22',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: '16px',
-              padding: '8px',
-              width: '200px',
-              boxShadow: '0 12px 35px rgba(0, 0, 0, 0.9)',
-              zIndex: 50,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '4px'
-            }}>
-              <button
-                onClick={() => { setShowOptionsMenu(false); setShowMemoryDrawer(true); }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#ffffff',
-                  padding: '8px 10px',
-                  borderRadius: '10px',
+            <>
+              {/* Backdrop pour fermer en cliquant à l'extérieur */}
+              <div 
+                onClick={() => setShowOptionsMenu(false)} 
+                style={{ position: 'fixed', inset: 0, zIndex: 55 }} 
+              />
+
+              <div style={{
+                position: 'absolute',
+                right: 0,
+                top: '36px',
+                background: '#212126',
+                border: '1px solid rgba(255, 255, 255, 0.14)',
+                borderRadius: '24px',
+                padding: '8px 6px 10px',
+                width: '240px',
+                boxShadow: '0 20px 50px rgba(0, 0, 0, 0.85), 0 0 1px rgba(255, 255, 255, 0.2)',
+                zIndex: 60,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px',
+                animation: 'fadeIn 0.15s ease forwards'
+              }}>
+                {/* En-tête / Titre de la conversation (Style exact de la capture : API Anthropic expliquée) */}
+                <div style={{
                   fontSize: '0.78rem',
                   fontWeight: '600',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <Database size={14} color="#38bdf8" />
-                <span>Voir la base SQLite ({memoryFacts.length})</span>
-              </button>
-              <button
-                onClick={handleResetAll}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#ef4444',
-                  padding: '8px 10px',
-                  borderRadius: '10px',
-                  fontSize: '0.78rem',
-                  fontWeight: '600',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-              >
-                <RotateCcw size={14} />
-                <span>Effacer et réinitialiser</span>
-              </button>
-              {onLogout && (
+                  color: '#94a3b8',
+                  textAlign: 'center',
+                  padding: '8px 12px 10px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                  marginBottom: '4px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }}>
+                  {currentProject || 'Dossier PME · Wave & SYSCOHADA'}
+                </div>
+
+                {/* 1. Partager */}
                 <button
-                  onClick={() => { setShowOptionsMenu(false); onLogout(); }}
+                  onClick={() => handleShareChat()}
                   style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#f59e0b',
-                    padding: '8px 10px',
-                    borderRadius: '10px',
-                    fontSize: '0.78rem',
-                    fontWeight: '600',
-                    textAlign: 'left',
-                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '8px'
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  <Lock size={14} color="#f59e0b" />
-                  <span>Verrouiller / Déconnexion</span>
+                  <Share2 size={18} color="rgba(255, 255, 255, 0.85)" />
+                  <span>Partager</span>
                 </button>
-              )}
-            </div>
+
+                {/* 2. Épingler */}
+                <button
+                  onClick={handleTogglePin}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: isPinned ? '#38bdf8' : '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Pin size={18} color={isPinned ? '#38bdf8' : 'rgba(255, 255, 255, 0.85)'} />
+                  <span>{isPinned ? 'Désépingler' : 'Épingler'}</span>
+                </button>
+
+                {/* 3. Ajouter au projet > */}
+                <button
+                  onClick={() => { setShowOptionsMenu(false); setShowProjectModal(true); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Folder size={18} color="rgba(255, 255, 255, 0.85)" />
+                  <span style={{ flex: 1 }}>Ajouter au projet</span>
+                  <ChevronRight size={16} color="rgba(255, 255, 255, 0.45)" />
+                </button>
+
+                {/* 4. Fichiers envoyés */}
+                <button
+                  onClick={() => { setShowOptionsMenu(false); setShowSentFilesModal(true); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Paperclip size={18} color="rgba(255, 255, 255, 0.85)" />
+                  <span>Fichiers envoyés</span>
+                </button>
+
+                {/* 5. Rechercher dans le chat */}
+                <button
+                  onClick={() => { setShowOptionsMenu(false); setShowChatSearch(true); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Search size={18} color="rgba(255, 255, 255, 0.85)" />
+                  <span>Rechercher dans le chat</span>
+                </button>
+
+                {/* 6. Archiver */}
+                <button
+                  onClick={handleArchiveChat}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Archive size={18} color="rgba(255, 255, 255, 0.85)" />
+                  <span>Archiver</span>
+                </button>
+
+                {/* Séparateur */}
+                <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.08)', margin: '4px 6px' }} />
+
+                {/* 7. Supprimer (Style exact en rouge avec corbeille rouge) */}
+                <button
+                  onClick={() => { setShowOptionsMenu(false); handleResetAll(); }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '9px 12px',
+                    color: '#ef4444',
+                    fontSize: '0.88rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Trash2 size={18} color="#ef4444" />
+                  <span>Supprimer</span>
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -1096,6 +1283,59 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           gap: '14px'
         }}
       >
+        {/* Barre de Recherche dans le chat (Option du menu contextuel ChatGPT) */}
+        {showChatSearch && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            background: '#202024',
+            border: '1px solid rgba(0, 112, 243, 0.45)',
+            borderRadius: '16px',
+            padding: '8px 14px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+            marginBottom: '4px',
+            animation: 'fadeIn 0.2s ease'
+          }}>
+            <Search size={16} color="#38bdf8" />
+            <input
+              type="text"
+              value={chatSearchQuery}
+              onChange={(e) => setChatSearchQuery(e.target.value)}
+              placeholder="Rechercher dans la conversation..."
+              autoFocus
+              style={{
+                flex: 1,
+                background: 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                fontSize: '0.86rem',
+                outline: 'none'
+              }}
+            />
+            {chatSearchQuery && (
+              <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: '600' }}>
+                {messages.filter(m => (m.text || '').toLowerCase().includes(chatSearchQuery.toLowerCase())).length} trouvé(s)
+              </span>
+            )}
+            <button
+              onClick={() => { setShowChatSearch(false); setChatSearchQuery(''); }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(255,255,255,0.6)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '2px'
+              }}
+              title="Fermer la recherche"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
         {/* ======================================================
             ÉTAT INITIAL (Style exact capture d'écran)
             Orbe holographique + Hello there, human! + Cartes d'action
@@ -1418,7 +1658,10 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         {/* ======================================================
             MESSAGES DE LA CONVERSATION
         ====================================================== */}
-        {messages.map((msg, index) => (
+        {(chatSearchQuery.trim()
+          ? messages.filter(m => (m.text || '').toLowerCase().includes(chatSearchQuery.toLowerCase()))
+          : messages
+        ).map((msg, index) => (
           <React.Fragment key={msg.id}>
             {/* Timestamp centré au début du fil (Style exact screenshot: Today 12:43 PM) */}
             {index === 0 && (
@@ -1736,57 +1979,96 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                   </div>
                 )}
 
-                {/* Boutons d'action sous la réponse : [ ❐ Copy ] [ ↺ Try again ] */}
+                {/* Ligne d'actions sous la réponse (Exacte capture d'écran : [ 📋 ] [ 👎 ] [ 📤 ] [ ⋯ ]) */}
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '8px',
-                  marginTop: '12px'
+                  gap: '14px',
+                  marginTop: '10px',
+                  paddingLeft: '2px'
                 }}>
+                  {/* 1. Copier 📋 */}
                   <button
                     onClick={() => handleCopyText(msg.text, msg.id)}
                     style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: copiedId === msg.id ? '#4ade80' : 'rgba(255, 255, 255, 0.45)',
+                      padding: '4px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      background: '#232328',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '9999px',
-                      padding: '6px 14px',
-                      color: copiedId === msg.id ? '#4ade80' : 'rgba(255, 255, 255, 0.85)',
-                      fontSize: '0.78rem',
-                      fontWeight: '600',
+                      justifyContent: 'center',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'color 0.15s, transform 0.1s'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#2c2c33'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = '#232328'}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = copiedId === msg.id ? '#4ade80' : 'rgba(255, 255, 255, 0.45)'}
+                    title="Copier le message"
                   >
-                    {copiedId === msg.id ? <Check size={13} color="#4ade80" /> : <Copy size={13} />}
-                    <span>{copiedId === msg.id ? 'Copié' : 'Copy'}</span>
+                    {copiedId === msg.id ? <Check size={16} color="#4ade80" /> : <Copy size={16} />}
                   </button>
 
+                  {/* 2. Thumbs Down 👎 */}
                   <button
-                    onClick={handleRetryLastAction}
+                    onClick={() => handleThumbsDown(msg.id)}
                     style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: feedbackGiven[msg.id] ? '#f59e0b' : 'rgba(255, 255, 255, 0.45)',
+                      padding: '4px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      background: '#232328',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '9999px',
-                      padding: '6px 14px',
-                      color: 'rgba(255, 255, 255, 0.85)',
-                      fontSize: '0.78rem',
-                      fontWeight: '600',
+                      justifyContent: 'center',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'color 0.15s'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#2c2c33'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = '#232328'}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = feedbackGiven[msg.id] ? '#f59e0b' : 'rgba(255, 255, 255, 0.45)'}
+                    title="Mauvaise réponse / Signaler"
                   >
-                    <RotateCcw size={13} />
-                    <span>Try again</span>
+                    <ThumbsDown size={16} />
+                  </button>
+
+                  {/* 3. Partager 📤 */}
+                  <button
+                    onClick={() => handleShareChat(msg.text)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255, 255, 255, 0.45)',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'color 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.45)'}
+                    title="Partager cette réponse"
+                  >
+                    <Share2 size={16} />
+                  </button>
+
+                  {/* 4. Options ··· (Ouvre le menu contextuel de la capture) */}
+                  <button
+                    onClick={() => setShowOptionsMenu(prev => !prev)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255, 255, 255, 0.45)',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'color 0.15s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#ffffff'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255, 255, 255, 0.45)'}
+                    title="Plus d'options"
+                  >
+                    <MoreHorizontal size={17} />
                   </button>
                 </div>
 
@@ -2187,19 +2469,21 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           </div>
         )}
 
-        {/* 2. CHAMP DE SAISIE EN PILULE (Placeholder: Message Chatbot AI) */}
+        {/* 2. CHAMP DE SAISIE EN PILULE UNIQUE STYLE CHATGPT (Capture exacte : (+) Demander à ChatGPT (🎙️) (🔵|||)) */}
         <form
           onSubmit={handleSendMessage}
           style={{
             display: 'flex',
             alignItems: 'center',
-            background: '#19191d',
+            background: '#202024',
             border: `1.5px solid ${inputFocused ? '#0070f3' : 'rgba(255, 255, 255, 0.1)'}`,
-            boxShadow: inputFocused ? '0 0 16px rgba(0, 112, 243, 0.45)' : 'none',
+            boxShadow: inputFocused ? '0 0 20px rgba(0, 112, 243, 0.45)' : '0 4px 16px rgba(0,0,0,0.35)',
             borderRadius: '9999px',
-            padding: '6px 8px 6px 18px',
+            padding: '5px 6px 5px 8px',
             gap: '8px',
-            transition: 'border-color 0.2s, box-shadow 0.2s'
+            transition: 'all 0.2s',
+            width: '100%',
+            boxSizing: 'border-box'
           }}
         >
           <input
@@ -2211,176 +2495,102 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
             style={{ display: 'none' }}
           />
 
+          {/* Bouton (+) intégré à gauche à l'intérieur de la pilule (style exact de la capture) */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(255, 255, 255, 0.9)',
+              cursor: 'pointer',
+              flexShrink: 0,
+              transition: 'background 0.15s'
+            }}
+            title="Ajouter des pièces justificatives (+)"
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'}
+          >
+            <Plus size={18} strokeWidth={2.4} />
+          </button>
+
+          {/* Saisie textuelle avec placeholder fidèle à la capture : Demander à ChatGPT */}
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
-            placeholder="Message Chatbot AI..."
+            placeholder="Demander à ChatGPT..."
             style={{
               flex: 1,
               background: 'transparent',
               border: 'none',
               color: '#ffffff',
-              fontSize: '0.88rem',
-              outline: 'none'
+              fontSize: '0.92rem',
+              outline: 'none',
+              padding: '0 4px'
             }}
           />
 
-          {/* Bouton ↑ Envoyer */}
+          {/* Bouton Micro 🎙️ (style exact de la capture) */}
           <button
-            type="submit"
+            type="button"
+            onClick={handleToggleMic}
             style={{
               width: '32px',
               height: '32px',
               borderRadius: '50%',
-              background: '#0070f3',
-              color: '#ffffff',
-              border: 'none',
+              background: isListeningMic ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+              border: isListeningMic ? '1px solid #ef4444' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              color: isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.75)',
               cursor: 'pointer',
               flexShrink: 0,
-              boxShadow: '0 2px 10px rgba(0, 112, 243, 0.5)'
+              transition: 'all 0.15s'
             }}
-            title="Envoyer"
+            title={isListeningMic ? "Écoute en cours..." : "Dictée vocale"}
           >
-            <ArrowUp size={16} strokeWidth={2.5} />
+            <Mic size={18} />
           </button>
-        </form>
 
-        {/* 3. BARRE D'OUTILS DU SCREENSHOT DU MILIEU : [+] [🌐 Web Search]  ---  [🎙] [〰 Audio Voix] */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '8px',
-          padding: '2px 4px 0'
-        }}>
-          {/* Gauche : [+] et [🌐 Web Search] */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Bouton + (Documents / Photos) */}
+          {/* Bouton Vocal Bleu avec Ondes Sonores (🔵 |||||) ou Envoi ↑ si texte saisi */}
+          {inputMessage.trim() ? (
             <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
+              type="submit"
               style={{
                 width: '34px',
                 height: '34px',
                 borderRadius: '50%',
-                background: '#202024',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: '#0070f3',
+                color: '#ffffff',
+                border: 'none',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'rgba(255, 255, 255, 0.85)',
                 cursor: 'pointer',
-                transition: 'all 0.2s'
+                flexShrink: 0,
+                boxShadow: '0 2px 10px rgba(0, 112, 243, 0.5)'
               }}
-              title="Ajouter un carnet ou capture (+)"
-              onMouseEnter={(e) => e.currentTarget.style.background = '#2a2a30'}
-              onMouseLeave={(e) => e.currentTarget.style.background = '#202024'}
+              title="Envoyer"
             >
-              <Plus size={17} />
+              <ArrowUp size={17} strokeWidth={2.5} />
             </button>
-
-            {/* Pill [🌐 Web Search] */}
-            <div style={{ position: 'relative' }}>
-              <button
-                type="button"
-                onClick={() => setShowFindInMenu(!showFindInMenu)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  background: '#202024',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  borderRadius: '9999px',
-                  padding: '7px 12px',
-                  color: 'rgba(255, 255, 255, 0.85)',
-                  fontSize: '0.74rem',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                <Globe size={13} color="#38bdf8" />
-                <span>Web Search</span>
-                <ChevronDown size={11} color="rgba(255,255,255,0.4)" />
-              </button>
-
-              {showFindInMenu && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: '38px',
-                  left: 0,
-                  background: '#1d1d22',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: '14px',
-                  padding: '6px',
-                  width: '190px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.85)',
-                  zIndex: 40,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '3px'
-                }}>
-                  {['Toutes les sources', 'Flux Wave & Orange', 'Livre de Caisse', 'SYSCOHADA SMT Live'].map((src) => (
-                    <button
-                      key={src}
-                      type="button"
-                      onClick={() => { setSelectedSource(src); setShowFindInMenu(false); }}
-                      style={{
-                        padding: '6px 10px',
-                        borderRadius: '8px',
-                        background: selectedSource === src ? 'rgba(0,112,243,0.2)' : 'transparent',
-                        color: selectedSource === src ? '#38bdf8' : '#ffffff',
-                        fontSize: '0.74rem',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        fontWeight: selectedSource === src ? '700' : '400'
-                      }}
-                    >
-                      {src}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Droite : [🎙 Micro] et [〰 Bouton Audio Voix] */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {/* Bouton Micro */}
-            <button
-              type="button"
-              onClick={handleToggleMic}
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: isListeningMic ? 'rgba(239, 68, 68, 0.2)' : '#202024',
-                border: isListeningMic ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.08)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: isListeningMic ? '#ef4444' : 'rgba(255, 255, 255, 0.85)',
-                cursor: 'pointer',
-                boxShadow: isListeningMic ? '0 0 12px rgba(239, 68, 68, 0.5)' : 'none',
-                transition: 'all 0.2s'
-              }}
-              title={isListeningMic ? "Écoute en cours... Cliquez pour arrêter" : "Dicter au micro"}
-            >
-              <Mic size={16} />
-            </button>
-
-            {/* Bouton 〰 Ondes Audio (Ouvre l'Écran Voix - Exact du screenshot du milieu !) */}
+          ) : (
             <button
               type="button"
               onClick={() => setCurrentView('voice')}
               style={{
-                width: '36px',
-                height: '36px',
+                width: '34px',
+                height: '34px',
                 borderRadius: '50%',
                 background: 'linear-gradient(135deg, #0070f3 0%, #2563eb 100%)',
                 border: 'none',
@@ -2389,19 +2599,21 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
                 justifyContent: 'center',
                 color: '#ffffff',
                 cursor: 'pointer',
-                boxShadow: '0 0 14px rgba(0, 112, 243, 0.55)',
-                transition: 'transform 0.15s'
+                flexShrink: 0,
+                boxShadow: '0 2px 12px rgba(0, 112, 243, 0.55)'
               }}
-              title="Configurer la voix de l'IA (Écran Voix)"
+              title="Assistant Vocal Amadou (Écran Voix)"
             >
+              {/* Onde vocale style ChatGPT */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '2px', height: '14px' }}>
-                <span className="wave-bar-1" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
-                <span className="wave-bar-2" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
-                <span className="wave-bar-3" style={{ width: '2px', background: '#ffffff', borderRadius: '2px' }} />
+                <span style={{ width: '2px', height: '6px', background: '#ffffff', borderRadius: '1px' }} />
+                <span style={{ width: '2px', height: '14px', background: '#ffffff', borderRadius: '1px' }} />
+                <span style={{ width: '2px', height: '9px', background: '#ffffff', borderRadius: '1px' }} />
+                <span style={{ width: '2px', height: '5px', background: '#ffffff', borderRadius: '1px' }} />
               </div>
             </button>
-          </div>
-        </div>
+          )}
+        </form>
       </div>
     </div>
 
@@ -2625,6 +2837,263 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           operatorName={operatorName}
           onClose={() => setShowCertifiedBilanSheet(false)}
         />
+      )}
+
+      {/* 5. MODALE FICHIERS ENVOYÉS (Option du menu contextuel ChatGPT) */}
+      {showSentFilesModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#1d1d22',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '440px',
+            padding: '20px',
+            color: '#ffffff',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '14px',
+            animation: 'fadeIn 0.2s ease'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Paperclip size={18} color="#38bdf8" />
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800' }}>Fichiers envoyés & Pièces</h3>
+              </div>
+              <button
+                onClick={() => setShowSentFilesModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '30px',
+                  height: '30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ fontSize: '0.78rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              Voici toutes les pièces justificatives auditées et rattachées à votre dossier bancaire.
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+              {[
+                { name: `Relevé des encaissements ${operatorName}`, type: 'Wave/OM · Flux certifiés', date: 'Aujourd\'hui', tag: 'S2 Cash' },
+                { name: 'Photo du carnet de caisse manuscrit', type: 'Achats marchandises & stock', date: 'Aujourd\'hui', tag: 'S1 Achats' },
+                { name: 'Attestation d\'immatriculation NINEA', type: 'Justificatif DGI officiel', date: 'Vérifié', tag: 'S3 Légal' },
+                { name: 'Registre du commerce RCCM Dakar', type: 'Greffe tribunal de commerce', date: 'Vérifié', tag: 'S3 Légal' },
+                { name: '10 - Bilan Simplifié et Certifié (Rose/Orange)', type: 'États SYSCOHADA SMT', date: 'Certifié', tag: 'Formulaire 10' }
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    padding: '10px 12px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255, 255, 255, 0.06)'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: '8px',
+                      background: 'rgba(0, 112, 243, 0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#38bdf8'
+                    }}>
+                      <Paperclip size={16} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: '700', color: '#ffffff' }}>{item.name}</div>
+                      <div style={{ fontSize: '0.70rem', color: '#94a3b8' }}>{item.type} · {item.date}</div>
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: '0.64rem',
+                    fontWeight: '800',
+                    background: item.tag === 'Formulaire 10' ? 'linear-gradient(90deg, #ec4899, #f97316)' : 'rgba(255,255,255,0.08)',
+                    color: '#ffffff',
+                    padding: '3px 8px',
+                    borderRadius: '6px'
+                  }}>
+                    {item.tag}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setShowSentFilesModal(false);
+                setShowCertifiedBilanSheet(true);
+              }}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #0070f3 0%, #2563eb 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                padding: '12px',
+                fontSize: '0.84rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <FileSpreadsheet size={16} />
+              <span>Ouvrir la feuille du Bilan Formulaire 10</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 6. MODALE AJOUTER AU PROJET (Option du menu contextuel ChatGPT) */}
+      {showProjectModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(8px)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#1d1d22',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '380px',
+            padding: '20px',
+            color: '#ffffff',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            animation: 'fadeIn 0.2s ease'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Folder size={18} color="#38bdf8" />
+                <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800' }}>Ajouter au projet</h3>
+              </div>
+              <button
+                onClick={() => setShowProjectModal(false)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '30px',
+                  height: '30px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#ffffff',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+              Choisissez le projet dans lequel classer cette session d'audit :
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {[
+                'Passeport Financier PME',
+                'Dossier Crédit & Garantie FONGIP',
+                'Certification Bilan SYSCOHADA SMT',
+                'Campagne Audit Annuelle 2026'
+              ].map((proj) => (
+                <button
+                  key={proj}
+                  onClick={() => {
+                    setCurrentProject(proj);
+                    setShowProjectModal(false);
+                    showToast(`✓ Assigné au projet : ${proj}`);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    borderRadius: '12px',
+                    background: currentProject === proj ? 'rgba(0, 112, 243, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                    border: currentProject === proj ? '1px solid #0070f3' : '1px solid rgba(255, 255, 255, 0.06)',
+                    color: '#ffffff',
+                    fontSize: '0.84rem',
+                    fontWeight: currentProject === proj ? '700' : '500',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Folder size={15} color={currentProject === proj ? '#38bdf8' : 'rgba(255,255,255,0.6)'} />
+                    <span>{proj}</span>
+                  </div>
+                  {currentProject === proj && <Check size={16} color="#38bdf8" />}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 7. TOAST NOTIFICATION FLOTTANT */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '64px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(20, 20, 24, 0.96)',
+          border: '1px solid rgba(255, 255, 255, 0.16)',
+          color: '#ffffff',
+          borderRadius: '9999px',
+          padding: '8px 20px',
+          fontSize: '0.82rem',
+          fontWeight: '600',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.7)',
+          zIndex: 120,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          animation: 'fadeIn 0.2s ease',
+          pointerEvents: 'none'
+        }}>
+          <span>{toastMessage}</span>
+        </div>
       )}
 
     </div>
