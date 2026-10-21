@@ -1,0 +1,236 @@
+:root {
+  color-scheme: dark;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Orange Max it Gradient & Palette */
+  --orange-vibrant: #f87702;
+  --orange-deep: #de6a03;
+  --orange-amber: #9c4f0b;
+  --orange-dusk: #493625;
+  --bg-dark: #08080a;
+  --bg-drawer: #14100e;
+  --color-sand: #D9D9D7;
+
+  --bg-primary: #08080a;
+  --accent-primary: #f87702;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  color-scheme: dark;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  background-color: #07090e !important;
+  color: #ffffff;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+#root {
+  color-scheme: dark;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Battement de cœur réaliste et vivant (lub-dub) avec halo lumineux */
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0));
+  }
+  14% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.7)) drop-shadow(0 0 8px rgba(250, 204, 21, 0.5));
+  }
+  28% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.25));
+  }
+  42% {
+    transform: scale(1.14);
+    filter: drop-shadow(0 0 14px rgba(249, 115, 22, 0.65)) drop-shadow(0 0 8px rgba(34, 197, 94, 0.5));
+  }
+  70% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0));
+  }
+}
+
+.heartbeat-logo {
+  animation: heartbeat 1.35s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  transform-origin: center center;
+  will-change: transform, filter;
+  display: block;
+}
+
+.app-wrapper {
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: #07090e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: clamp(8px, 2vh, 20px);
+  box-sizing: border-box;
+}
+
+.mobile-screen-container {
+  width: 100%;
+  max-width: 412px;
+  height: 100%;
+  max-height: min(94vh, 840px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 42px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  margin: auto !important;
+  position: relative;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .app-wrapper {
+    padding: 0 !important;
+  }
+
+  .mobile-screen-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Bouton Continuer : Noir profond avec halo émeraude et liseré lumineux */
+.continue-btn {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-radius: 20px !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 14px 34px rgba(30, 92, 77, 0.78), 0 4px 14px rgba(0, 0, 0, 0.9), 0 0 0 1.5px rgba(255, 255, 255, 0.35) !important;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.continue-btn:hover:not(:disabled) {
+  background: #000000 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 16px 38px rgba(30, 92, 77, 0.92), 0 6px 16px rgba(0, 0, 0, 0.95), 0 0 0 1.5px rgba(255, 255, 255, 0.5) !important;
+}
+
+.continue-btn:disabled {
+  background: #000000 !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  border: none !important;
+  opacity: 0.65 !important;
+  cursor: not-allowed !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
+  transform: none !important;
+}
+
+/* Animation flottante et lumineuse pour l'Orbe Holographique */
+@keyframes orbFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.5)) drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.025);
+    filter: drop-shadow(0 0 42px rgba(168, 85, 247, 0.75)) drop-shadow(0 0 18px rgba(56, 189, 248, 0.6));
+  }
+}
+
+.orb-animated {
+  animation: orbFloat 4.5s ease-in-out infinite;
+  will-change: transform, filter;
+}
+
+/* Scrollbar ultra discrète */
+.clean-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.clean-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.clean-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+.clean-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+
+
