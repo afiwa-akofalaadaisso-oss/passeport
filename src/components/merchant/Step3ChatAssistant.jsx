@@ -32,10 +32,12 @@ import {
   Mic,
   Globe,
   ArrowUpRight,
-  Volume2
+  Volume2,
+  Menu
 } from 'lucide-react';
 import ScreenPremiumPro from './ScreenPremiumPro';
 import ScreenVoiceSelect from './ScreenVoiceSelect';
+import SidebarDrawer from './SidebarDrawer';
 import { 
   checkBackendHealth, 
   sendChatMessage, 
@@ -108,6 +110,7 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
   const [currentView, setCurrentView] = useState('chat');
   const [activeVoice, setActiveVoice] = useState({ voiceId: 'paula', tone: 'Excited', speed: '1.50x' });
   const [isListeningMic, setIsListeningMic] = useState(false);
+  const [showSidebarDrawer, setShowSidebarDrawer] = useState(false);
 
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -699,8 +702,28 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
         zIndex: 25,
         flexShrink: 0
       }}>
-        {/* Titre à gauche : Mini-orbe bleu + Amadou AI */}
+        {/* Titre à gauche : Menu ☰ + Mini-orbe bleu + Amadou AI */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setShowSidebarDrawer(true)}
+            style={{
+              color: 'rgba(255, 255, 255, 0.85)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              borderRadius: '8px',
+              background: 'transparent',
+              border: 'none',
+              transition: 'background 0.2s',
+              marginRight: '2px'
+            }}
+            title="Menu latéral & Historique (Style ChatGPT)"
+          >
+            <Menu size={22} />
+          </button>
+
           <img
             src="/blue_aurora_orb.jpg"
             alt="Amadou AI"
@@ -2274,6 +2297,22 @@ export default function Step3ChatAssistant({ operatorData, onBack, onReset, onLo
           </div>
         </div>
       )}
+
+      {/* Menu Latéral / Drawer Navigation & Historique Style ChatGPT (Capture d'écran) */}
+      <SidebarDrawer
+        isOpen={showSidebarDrawer}
+        onClose={() => setShowSidebarDrawer(false)}
+        onNewChat={handleResetAll}
+        onSelectChat={(chat) => {
+          if (chat.id === 'rec-1') runStep1WaveExtraction();
+          else if (chat.id === 'rec-2') runStep2CarnetExtraction();
+          else if (chat.id === 'rec-3') runStep3LegalExtraction();
+          else if (chat.id === 'rec-4') runStep4BilanGeneration();
+        }}
+        onOpenSettings={() => setShowMemoryDrawer(true)}
+        onOpenPro={() => setCurrentView('premium')}
+        operatorName={operatorName}
+      />
 
     </div>
   );
